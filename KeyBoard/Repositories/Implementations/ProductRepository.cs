@@ -18,6 +18,12 @@ namespace KeyBoard.Repositories.Implementations
         }
         public async Task<Guid> AddProductAsync(ProductDTO productDto)
         {
+            bool categoryExists = await _context.Categories.AnyAsync(c => c.Id == productDto.CategoryId);
+            if (!categoryExists)
+            {
+                throw new Exception("Danh mục không hợp lệ!"); // Có thể dùng BadRequest nếu trong Controller
+            }
+
             var newProduct = _mapper.Map<Product>(productDto);
             _context.Products!.Add(newProduct);
             await _context.SaveChangesAsync();
@@ -56,5 +62,5 @@ namespace KeyBoard.Repositories.Implementations
                 await _context.SaveChangesAsync();
             }
         }
-    }
+    }   
 }
