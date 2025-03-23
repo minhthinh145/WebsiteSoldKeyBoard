@@ -1,0 +1,44 @@
+# 💾 Bỏ qua thư mục bin và obj (Build Output)
+bin/
+obj/
+
+# 🔥 Bỏ qua thư mục phát sinh của .NET
+*.user
+*.vs
+*.vscode/
+*.suo
+*.userosscache
+*.sln.docstates
+
+# 📦 Bỏ qua thư mục `packages` (NuGet)
+packages/
+*.nupkg
+project.lock.json
+
+# 🗄️ Bỏ qua database tạm (SQLite, SQL Server)
+*.mdf
+*.ldf
+*.sqlite
+*.db
+
+# 🔐 Bỏ qua thông tin nhạy cảm (.env, appsettings.json)
+appsettings.Development.json
+secrets.json
+.env
+.env.local
+
+# 🔗 Bỏ qua file log, debug
+*.log
+logs/
+trace.log
+debug.log
+
+# ⚙️ Bỏ qua cache & các file tạm
+node_modules/
+dist/
+wwwroot/lib/
+wwwroot/css/
+wwwroot/js/
+
+# 🚀 Bỏ qua file publish khi deploy
+publish/
