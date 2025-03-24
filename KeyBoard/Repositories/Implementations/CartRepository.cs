@@ -28,21 +28,21 @@ namespace KeyBoard.Repositories.Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task ClearCartAsync(Guid userId)
+        public async Task ClearCartAsync(string userId)
         {
             var cartItems = await _context.Carts.Where(c => c.UserId == userId).ToListAsync();
             _context.Carts.RemoveRange(cartItems);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Cart?> GetCartItemAsync(Guid userId, Guid productId)
+        public async Task<Cart?> GetCartItemAsync(string userId, Guid productId)
         {
            return await _context.Carts
                 .Where(c => c.UserId == userId && c.ProductId == productId)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<CartItemDTO>> GetCartItemsAsync(Guid userId)
+        public async Task<List<CartItemDTO>> GetCartItemsAsync(string userId)
         {
             var cartItems = _context.Carts
                 .Where(c => c.UserId == userId)

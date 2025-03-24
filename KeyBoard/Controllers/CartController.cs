@@ -31,7 +31,7 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xem giỏ hàng" });
             }
 
-            var cartItems = await _repo.GetCartItemsAsync(userId.Value);
+            var cartItems = await _repo.GetCartItemsAsync(userId);
             var cartDtos = _mapper.Map<List<CartItemDTO>>(cartItems);
             return Ok(cartDtos);
         }
@@ -49,7 +49,7 @@ namespace KeyBoard.Controllers
 
             var cart = _mapper.Map<Cart>(cartDTO);
             cart.Id = Guid.NewGuid();
-            cart.UserId = userId.Value;
+            cart.UserId = userId.ToString();
             cart.CreatedAt = DateTime.UtcNow;
 
             await _repo.AddToCartAsync(cart);
@@ -82,7 +82,7 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xóa sản phẩm khỏi giỏ hàng" });
             }
 
-            var cart = await _repo.GetCartItemAsync(userId.Value, productId);
+            var cart = await _repo.GetCartItemAsync(userId, productId);
             if (cart == null)
             {
                 return NotFound(new { message = "Sản phẩm không tồn tại trong giỏ hàng" });
@@ -102,13 +102,13 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xóa giỏ hàng" });
             }
 
-            await _repo.ClearCartAsync(userId.Value);
+            await _repo.ClearCartAsync(userId);
             return Ok(new { message = "Giỏ hàng đã được xóa" });
         }
-        private Guid? GetUserIdFromToken()
+        private string? GetUserIdFromToken()
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            return userIdClaim != null ? Guid.Parse(userIdClaim) : null;
+            return userIdClaim != null ? userIdClaim.ToString() : null;
         }
 
 

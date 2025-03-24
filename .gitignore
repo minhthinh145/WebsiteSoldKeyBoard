@@ -42,3 +42,5 @@ wwwroot/js/
 
 # 🚀 Bỏ qua file publish khi deploy
 publish/
+appsettings.json
+appsettings.*.json

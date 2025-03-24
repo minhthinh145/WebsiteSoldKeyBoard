@@ -12,7 +12,7 @@ public partial class Cart
     [Key]
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
 
     public Guid ProductId { get; set; }
 
@@ -27,5 +27,5 @@ public partial class Cart
 
     [ForeignKey("UserId")]
     [InverseProperty("Carts")]
-    public virtual User User { get; set; } = null!;
+    public virtual ApplicationUser User { get; set; } = null!;
 }
