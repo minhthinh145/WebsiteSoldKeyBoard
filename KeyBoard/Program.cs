@@ -49,6 +49,7 @@ builder.Services.AddAuthentication(options => {
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 var app = builder.Build();  
 
 // Configure the HTTP request pipeline.

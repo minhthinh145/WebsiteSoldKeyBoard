@@ -3,6 +3,7 @@ using KeyBoard.Data;
 using KeyBoard.DTOs;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,7 @@ namespace KeyBoard.Controllers
 
         //Create a product
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateNewProduct([FromBody] ProductDTO productDTO)
         {
             if (productDTO == null || !ModelState.IsValid)
@@ -64,6 +66,7 @@ namespace KeyBoard.Controllers
 
         //Update a product
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductDTO productDTO)
         {
             if (id != productDTO.Id)
@@ -88,6 +91,7 @@ namespace KeyBoard.Controllers
 
         //Delete a product
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
         {
             var product = await _repo.GetProductByIdAsync(id);
