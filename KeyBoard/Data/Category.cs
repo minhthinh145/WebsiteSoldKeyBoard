@@ -19,8 +19,9 @@ public partial class Category
     public string? Description { get; set; }
 
     [Column(TypeName = "datetime")]
-    public DateTime? CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
     [InverseProperty("Category")]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }
+    

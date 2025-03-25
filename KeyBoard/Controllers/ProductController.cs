@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using KeyBoard.Data;
 using KeyBoard.DTOs;
+using KeyBoard.Helpers;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,7 @@ namespace KeyBoard.Controllers
 
         //Get List of item
         [HttpGet]
+        [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetAll()
         {
             var products = await _repo.GetAllProductsAsync();
@@ -31,6 +33,7 @@ namespace KeyBoard.Controllers
 
         //Get by id
         [HttpGet("{id}")]
+        [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetById(Guid id) 
         {
             var product = await _repo.GetProductByIdAsync(id);

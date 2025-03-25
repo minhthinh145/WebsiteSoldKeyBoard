@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using KeyBoard.Data;
 using KeyBoard.DTOs;
+using KeyBoard.Helpers;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KeyBoard.Controllers
 {
@@ -23,9 +26,10 @@ namespace KeyBoard.Controllers
 
         //get cart
         [HttpGet]
+        [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetCart()
         {
-            var userId = GetUserIdFromToken();
+            var userId = User.FindFirstValue("UserId");
             if (userId == null)
             {
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xem giỏ hàng" });

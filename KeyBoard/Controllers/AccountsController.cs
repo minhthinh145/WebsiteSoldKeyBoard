@@ -1,5 +1,5 @@
-﻿using KeyBoard.DTOs.AuthenDTOs;
-using KeyBoard.Repositories.Interfaces;
+﻿using KeyBoard.Repositories.Interfaces;
+    using KeyBoard.DTOs.AuthenDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +24,7 @@ namespace KeyBoard.Controllers
             {
                 return Ok(result.Succeeded);
             }
-            return Unauthorized();
+            return StatusCode(500);
         }
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignIn(SignInDTO signin)

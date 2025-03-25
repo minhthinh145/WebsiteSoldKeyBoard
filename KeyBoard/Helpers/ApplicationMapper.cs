@@ -13,7 +13,12 @@ namespace KeyBoard.Helpers
           .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price));
 
-            CreateMap<CartItemDTO, Cart>(); // Cái này vẫn được giữ nguyên
+            CreateMap<CartItemDTO, Cart>(); 
+            CreateMap<Category, CategoryDTO>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt ?? DateTime.UtcNow)); 
+
+            CreateMap<CategoryDTO, Category>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow)); 
 
         }
     }
