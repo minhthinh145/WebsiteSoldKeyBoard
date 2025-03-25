@@ -43,17 +43,18 @@ namespace KeyBoard.Controllers
 
         //add 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddToCart([FromBody] CartItemDTO cartDTO)
         {
-            var userId = GetUserIdFromToken();
+            var userId = User.FindFirst("UserId")?.Value;
             if (userId == null)
             {
                 return Unauthorized(new { message = "Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng" });
             }
-
+            cartDTO.UserId = userId;
             var cart = _mapper.Map<Cart>(cartDTO);
             cart.Id = Guid.NewGuid();
-            cart.UserId = userId.ToString();
+            cart.UserId = userId;
             cart.CreatedAt = DateTime.UtcNow;
 
             await _repo.AddToCartAsync(cart);
@@ -62,15 +63,22 @@ namespace KeyBoard.Controllers
 
         //update
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> UpdateCart([FromBody] CartItemDTO cartDTO)
         {
-            var existingCart = await _repo.GetCartItemAsync(cartDTO.UserId, cartDTO.ProductId);
+            var userId = User.FindFirstValue("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Bạn cần đăng nhập để cập nhật giỏ hàng" });
+            }
+
+            var existingCart = await _repo.GetCartItemAsync(userId, cartDTO.ProductId);
             if (existingCart == null)
             {
                 return NotFound(new { message = "Sản phẩm không tồn tại trong giỏ hàng" });
             }
-            existingCart.Quantity = cartDTO.Quantity; // Chỉ cần update số lượng
 
+            existingCart.Quantity = cartDTO.Quantity; // Cập nhật số lượng
             await _repo.UpdateCartAsync(existingCart);
             return Ok(new { message = "Giỏ hàng đã được cập nhật" });
         }

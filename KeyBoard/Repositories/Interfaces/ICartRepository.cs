@@ -5,7 +5,7 @@ namespace KeyBoard.Repositories.Interfaces
 {
     public interface ICartRepository
     {
-        Task<List<CartItemDTO>> GetCartItemsAsync(string userId);
+        Task<List<Cart>> GetCartItemsAsync(string userId);
         Task<Cart?> GetCartItemAsync(string userId, Guid productId);
         Task AddToCartAsync(Cart cart);
         Task UpdateCartAsync(Cart cart);

@@ -16,17 +16,21 @@ namespace KeyBoard.Repositories.Implementations
         public async Task AddToCartAsync(Cart cart)
         {
             var existingCart = await _context.Carts
-                    .FirstOrDefaultAsync(c => c.UserId == cart.UserId && c.ProductId == cart.ProductId);
+                .FirstOrDefaultAsync(c => c.UserId == cart.UserId && c.ProductId == cart.ProductId);
+
             if (existingCart != null)
             {
                 existingCart.Quantity += cart.Quantity;
+                _context.Carts.Update(existingCart); // Cần gọi Update() để EF Core theo dõi sự thay đổi
             }
             else
             {
-                await _context.Carts.AddAsync(cart); 
+                await _context.Carts.AddAsync(cart);
             }
-            await _context.SaveChangesAsync();
+
+            await _context.SaveChangesAsync(); // Lưu thay đổi vào database
         }
+
 
         public async Task ClearCartAsync(string userId)
         {
@@ -41,24 +45,13 @@ namespace KeyBoard.Repositories.Implementations
                 .Where(c => c.UserId == userId && c.ProductId == productId)
                 .FirstOrDefaultAsync();
         }
-
-        public async Task<List<CartItemDTO>> GetCartItemsAsync(string userId)
+        public async Task<List<Cart>> GetCartItemsAsync(string userId)
         {
-            var cartItems = _context.Carts
+            return await _context.Carts
                 .Where(c => c.UserId == userId)
-                .Include(c=> c.Product)// load infor sản phẩm
-                .Select( c=> new CartItemDTO
-                {
-                    ProductId = c.ProductId,
-                    ProductName = c.Product.Name,
-                    Quantity = c.Quantity,
-                    Price = c.Product.Price,
-                    ImageUrl = c.Product.ImageUrl!,
-                    CreatedAt = c.CreatedAt ?? DateTime.Now
-                }).ToListAsync();
-            return await cartItems;
+                .Include(c => c.Product)
+                .ToListAsync();
         }
-
         public async Task RemoveFromCartAsync(Cart cart)
         {
             _context.Carts.Remove(cart);
