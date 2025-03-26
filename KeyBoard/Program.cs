@@ -82,6 +82,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IVNPayService, VNPayServices>();
+builder.Services.AddScoped<IHoaDonRepository, HoaDonRepository>();
+builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
 var app = builder.Build();  
 
 // Configure the HTTP request pipeline.

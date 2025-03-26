@@ -30,11 +30,7 @@ namespace KeyBoard.Controllers
         [HttpGet("vnpay-return")]
         public IActionResult ProcessPaymentResponse()
         {
-            foreach (var key in HttpContext.Request.Query.Keys)
-            {
-                Console.WriteLine($"{key}: {HttpContext.Request.Query[key]}");
-            }
-
+         
             if (HttpContext.Request.Query.Count == 0)
             {
                 return BadRequest("Query parameters are missing.");
@@ -47,7 +43,6 @@ namespace KeyBoard.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi trong ProcessPaymentResponse: " + ex.Message);
                 return BadRequest("Lỗi xử lý phản hồi thanh toán.");
             }
         }

@@ -1,6 +1,7 @@
 ﻿using KeyBoard.Data;
 using KeyBoard.DTOs;
 using AutoMapper;
+using KeyBoard.DTOs.HoaDonsDTOs;
 namespace KeyBoard.Helpers
 {
     public class ApplicationMapper : Profile
@@ -22,6 +23,8 @@ namespace KeyBoard.Helpers
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
             CreateMap<OrderDTO, Order>().ReverseMap();
             CreateMap<OrderDetailDTO, OrderDetail>().ReverseMap();
+            CreateMap<HoaDon, HoaDonDTO>().ReverseMap();
+            CreateMap<ChiTietHoaDon, ChiTietHoaDonDTO>().ReverseMap();
         }
     }
 }

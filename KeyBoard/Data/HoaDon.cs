@@ -35,5 +35,5 @@ public partial class HoaDon
 
     public virtual TrangThai MaTrangThaiNavigation { get; set; } = null!;
 
-    public virtual AspNetUser User { get; set; } = null!;
+    public virtual ApplicationUser User { get; set; } = null!;
 }

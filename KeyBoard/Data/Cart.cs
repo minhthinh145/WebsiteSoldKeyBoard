@@ -17,5 +17,5 @@ public partial class Cart
 
     public virtual Product Product { get; set; } = null!;
 
-    public virtual AspNetUser User { get; set; } = null!;
+    public virtual ApplicationUser User { get; set; } = null!;
 }
