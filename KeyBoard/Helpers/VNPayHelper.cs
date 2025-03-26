@@ -38,43 +38,6 @@ namespace KeyBoard.Helpers
         /// </summary>
         public string CreatePaymentUrl(string baseUrl, string vnpHashSecret)
         {
-
-            /*
-             // 1. Sắp xếp tham số theo thứ tự alphabet
-            var sortedParams = new SortedDictionary<string, string>(_requestData
-                .Where(kv => !string.IsNullOrEmpty(kv.Value))
-                .ToDictionary(kv => kv.Key, kv => kv.Value));
-
-            // 2. Tạo chuỗi query string (có encode URL)
-            var queryString = string.Join("&", sortedParams
-                .Where(kv => !string.IsNullOrEmpty(kv.Value))
-                .Select(kv => $"{WebUtility.UrlEncode(kv.Key)}={WebUtility.UrlEncode(kv.Value)}"));
-
-            // 3. Tạo chuỗi để ký (KHÔNG encode URL)
-            var signData = string.Join("&", sortedParams.Select(kv => $"{kv.Key}={kv.Value}"));
-            if (signData.Length > 0)
-            {
-                signData = signData.TrimEnd('&'); // Xóa dấu & cuối cùng nếu có
-            }
-
-            // Debug xem signData có đúng không trước khi hash
-            Console.WriteLine("========== DEBUG VNPay ==========");
-            Console.WriteLine("[1] SignData trước khi hash:");
-            Console.WriteLine(signData);
-            Console.WriteLine("---------------------------------");
-
-            // 4. Tạo chữ ký SHA512
-            var vnpSecureHash = HmacSHA512(vnpHashSecret, signData);
-
-            Console.WriteLine("[2] Generated Hash:");
-            Console.WriteLine(vnpSecureHash);
-            Console.WriteLine("=================================");
-
-
-
-            // 5. Hoàn thiện URL
-            return $"{baseUrl}?{queryString}&vnp_SecureHash={vnpSecureHash}";
-             */
             var data = new StringBuilder();
 
             foreach (var (key, value) in _requestData.Where(kv => !string.IsNullOrEmpty(kv.Value)))
@@ -96,9 +59,6 @@ namespace KeyBoard.Helpers
 
             return baseUrl;
         }
-
-
-
 
         /// <summary>
         /// Kiểm tra chữ ký từ VNPay trả về

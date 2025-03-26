@@ -2,6 +2,7 @@
 using KeyBoard.Services.VNPayServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static KeyBoard.Helpers.VNPayHelper;
 
 namespace KeyBoard.Controllers
 {
@@ -26,24 +27,29 @@ namespace KeyBoard.Controllers
             return Ok(new { url = paymentUrl });
         }
 
-        /// <summary>
-        /// API xử lý phản hồi từ VNPay
-        /// </summary>
-        [HttpGet("payment-response")]
+        [HttpGet("vnpay-return")]
         public IActionResult ProcessPaymentResponse()
         {
-            var response = _vnPayService.ProcessPaymentResponse(Request.Query);
-            return Ok(response);
+            foreach (var key in HttpContext.Request.Query.Keys)
+            {
+                Console.WriteLine($"{key}: {HttpContext.Request.Query[key]}");
+            }
+
+            if (HttpContext.Request.Query.Count == 0)
+            {
+                return BadRequest("Query parameters are missing.");
+            }
+
+            try
+            {
+                var response = _vnPayService.ProcessPaymentResponse(HttpContext.Request.Query);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi trong ProcessPaymentResponse: " + ex.Message);
+                return BadRequest("Lỗi xử lý phản hồi thanh toán.");
+            }
         }
-
-        [HttpGet("payment-return")]
-        public IActionResult VNPayReturn()
-        {
-            var query = HttpContext.Request.Query;//Lấy query từ request
-            var response = _vnPayService.ProcessPaymentResponse(query);
-
-            return Ok(response);
-        }
-
     }
 }

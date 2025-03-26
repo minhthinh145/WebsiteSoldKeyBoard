@@ -55,7 +55,7 @@ namespace KeyBoard.Services.VNPayServices
             var vnp_SecureHash = query.FirstOrDefault(x => x.Key == "vnp_SecureHash").Value;
             var vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
             var vnp_OrderInfo = vnpay.GetResponseData("vnp_OrderInfo");
-            bool CheckSignature = vnpay.ValidateSignature(vnp_SecureHash, _config["VnPay:HashSecret"]);
+            bool CheckSignature = vnpay.ValidateSignature(vnp_SecureHash, _config["VNPay:HashSecret"]);
             if (!CheckSignature)
             {
                 return new VNPayResponseDTO
