@@ -1,6 +1,7 @@
 ﻿using KeyBoard.Data;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.VNPayServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -80,6 +81,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+builder.Services.AddScoped<IVNPayService, VNPayServices>();
 var app = builder.Build();  
 
 // Configure the HTTP request pipeline.
