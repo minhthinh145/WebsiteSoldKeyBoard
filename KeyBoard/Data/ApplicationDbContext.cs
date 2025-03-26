@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace KeyBoard.Data;
 
 public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+
 {
     public ApplicationDbContext()
     {
@@ -20,12 +22,17 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<ChiTietHoaDon> ChiTietHoaDons { get; set; }
+
+    public virtual DbSet<HoaDon> HoaDons { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<TrangThai> TrangThais { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -34,59 +41,164 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Cart>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Cart__3214EC072DE3F400");
 
+            entity.ToTable("Cart");
+
+            entity.HasIndex(e => e.ProductId, "IX_Cart_ProductId");
+
+            entity.HasIndex(e => e.UserId, "IX_Cart_UserId");
+
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.Carts).HasConstraintName("FK__Cart__ProductId__6B24EA82");
+            entity.HasOne(d => d.Product).WithMany(p => p.Carts)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK__Cart__ProductId__6B24EA82");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Carts).HasForeignKey(d=> d.UserId).HasConstraintName("FK_Order_User");
+            entity.HasOne(d => d.User).WithMany(p => p.Carts)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Order_User");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Categori__3214EC073C1B0005");
 
+            entity.HasIndex(e => e.Name, "UQ__Categori__737584F655AD9643").IsUnique();
+
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<ChiTietHoaDon>(entity =>
+        {
+            entity.HasKey(e => e.MaCt).HasName("PK__ChiTietH__27258E543E3B4AAD");
+
+            entity.ToTable("ChiTietHoaDon");
+
+            entity.Property(e => e.DonGia).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.GiamGia).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TenHh).HasMaxLength(255);
+
+            entity.HasOne(d => d.MaHdNavigation).WithMany(p => p.ChiTietHoaDons)
+                .HasForeignKey(d => d.MaHd)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ChiTietHoa__MaHd__43D61337");
+
+            entity.HasOne(d => d.MaHhNavigation).WithMany(p => p.ChiTietHoaDons)
+                .HasForeignKey(d => d.MaHh)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ChiTietHoa__MaHh__44CA3770");
+        });
+
+        modelBuilder.Entity<HoaDon>(entity =>
+        {
+            entity.HasKey(e => e.MaHd).HasName("PK__HoaDon__2725A6C0938A0714");
+
+            entity.ToTable("HoaDon");
+
+            entity.Property(e => e.CachThanhToan).HasMaxLength(50);
+            entity.Property(e => e.CachVanChuyen).HasMaxLength(50);
+            entity.Property(e => e.DiaChi).HasMaxLength(500);
+            entity.Property(e => e.GhiChu).HasMaxLength(500);
+            entity.Property(e => e.HoTen).HasMaxLength(255);
+            entity.Property(e => e.NgayCan).HasColumnType("datetime");
+            entity.Property(e => e.NgayDat).HasColumnType("datetime");
+            entity.Property(e => e.NgayGiao).HasColumnType("datetime");
+            entity.Property(e => e.PhiVanChuyen).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.SoDienThoai).HasMaxLength(15);
+            entity.Property(e => e.UserId).HasMaxLength(450);
+
+            entity.HasOne(d => d.MaTrangThaiNavigation).WithMany(p => p.HoaDons)
+                .HasForeignKey(d => d.MaTrangThai)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__HoaDon__MaTrangT__2BFE89A6");
+
+            entity.HasOne(d => d.User).WithMany(p => p.HoaDons)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__HoaDon__UserId__2B0A656D");
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Orders__3214EC07A568D15F");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.OrderStatus).HasDefaultValue("Pending");
+            entity.HasIndex(e => e.UserId, "IX_Orders_UserId");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Orders).HasForeignKey(d => d.UserId).HasConstraintName("FK__Orders__UserId__5EBF139D");
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.OrderStatus)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__Orders__UserId__5EBF139D");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC07123285BC");
 
+            entity.HasIndex(e => e.OrderId, "IX_OrderDetails_OrderId");
+
+            entity.HasIndex(e => e.ProductId, "IX_OrderDetails_ProductId");
+
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
 
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails).HasConstraintName("FK__OrderDeta__Order__6383C8BA");
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK__OrderDeta__Order__6383C8BA");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails).HasConstraintName("FK__OrderDeta__Produ__6477ECF3");
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK__OrderDeta__Produ__6477ECF3");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Products__3214EC076E0BFD36");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.HasIndex(e => e.CategoryId, "IX_Products_CategoryId");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.Products).HasConstraintName("FK__Products__Catego__5812160E");
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Products)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("FK__Products__Catego__5812160E");
         });
 
-       
+        modelBuilder.Entity<TrangThai>(entity =>
+        {
+            entity.HasKey(e => e.MaTrangThai).HasName("PK__TrangTha__AADE4138F996BCB4");
+
+            entity.ToTable("TrangThai");
+
+            entity.Property(e => e.MaTrangThai).ValueGeneratedNever();
+            entity.Property(e => e.MoTa).HasMaxLength(500);
+            entity.Property(e => e.TenTrangThai).HasMaxLength(255);
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }
