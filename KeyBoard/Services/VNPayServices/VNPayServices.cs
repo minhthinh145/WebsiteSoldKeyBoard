@@ -1,5 +1,9 @@
-﻿using KeyBoard.DTOs.VNPayDTOs;
+﻿using AutoMapper;
+using KeyBoard.DTOs.HoaDonsDTOs;
+using KeyBoard.DTOs.VNPayDTOs;
 using KeyBoard.Helpers;
+using KeyBoard.Repositories.Interfaces;
+using System.Threading.Tasks;
 using static KeyBoard.Helpers.VNPayHelper;
 
 namespace KeyBoard.Services.VNPayServices
@@ -7,29 +11,43 @@ namespace KeyBoard.Services.VNPayServices
     public class VNPayServices : IVNPayService
     {
         private readonly IConfiguration _config;
+        private readonly IHoaDonRepository _hoadon;
+        private readonly IMapper _mapper;
 
-        public VNPayServices(IConfiguration config)
+        public VNPayServices(IConfiguration config, IHoaDonRepository hoadon, IMapper mapper)
         {
             _config = config;
+            _hoadon = hoadon;
+            _mapper = mapper;
         }
 
         /// <summary>
         /// Tạo URL thanh toán VNPay
         /// </summary>  
-        public string CreatePaymentUrl(VNPayRequestDTO model, HttpContext context)
+        public async Task<string> CreatePaymentUrl(int maHD, HttpContext context)
         {
+            var hoadon = await _hoadon.GetHoaDonByIdAsync(maHD);
+            if (hoadon == null) throw new Exception("Hóa đơn không tồn tại");
+            var hoadonDTO = _mapper.Map<HoaDonDTO>(hoadon);
+            double tongTien = Convert.ToDouble(hoadonDTO.ChiTietHoaDons.Sum(ct => ct.SoLuong * ct.DonGia));
+            //tạo model cho request
+            var model = new VNPayRequestDTO
+            {
+                Amount = tongTien,
+                MaHd = hoadon.MaHd
+            };
             var tick = DateTime.Now.Ticks.ToString();
 
             var pay = new VNPayHelper();
             pay.AddRequestData("vnp_Version", _config["VNPay:Version"]);
             pay.AddRequestData("vnp_Command", _config["VNPay:Command"]);
             pay.AddRequestData("vnp_TmnCode", _config["VNPay:TmnCode"]);
-            pay.AddRequestData("vnp_Amount", (model.Amount * 100).ToString());
+            pay.AddRequestData("vnp_Amount", (model.Amount).ToString());
             pay.AddRequestData("vnp_CreateDate", model.CreatedDate.ToString("yyyyMMddHHmmss"));
             pay.AddRequestData("vnp_CurrCode", _config["VNPay:CurrCode"]);
             pay.AddRequestData("vnp_IpAddr",    Utils.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _config["VNPay:Locale"]);
-            pay.AddRequestData("vnp_OrderInfo", "Thanh toán cho đơn hàng:" + model.OrderId);
+            pay.AddRequestData("vnp_OrderInfo", "Thanh toán cho đơn hàng:" + model.MaHd);
             pay.AddRequestData("vnp_OrderType", "other");
             pay.AddRequestData("vnp_ReturnUrl", _config["VNPay:ReturnUrl"]);
             pay.AddRequestData("vnp_TxnRef", tick);
@@ -68,7 +86,7 @@ namespace KeyBoard.Services.VNPayServices
                 Success = true,
                 PaymentMethod = "VnPay",
                 OrderDescription = vnp_OrderInfo,
-                OrderId = vnp_orderid.ToString(),
+                PaymentId = vnp_orderid.ToString(),
                 TransactionId = vnp_TransactionId.ToString(),
                 Token = vnp_SecureHash,
                 VnPayResponseCode = vnp_ResponseCode.ToString()

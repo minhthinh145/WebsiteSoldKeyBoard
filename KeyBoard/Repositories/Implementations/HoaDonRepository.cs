@@ -73,5 +73,23 @@ namespace KeyBoard.Repositories.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> DeleteHoaDonByIdAsync(int maHD)
+        {
+            var existingHoaDon = await _context.HoaDons
+                                          .Include(h => h.ChiTietHoaDons) // Load danh sách chi tiết hóa đơn
+                                          .FirstOrDefaultAsync(h => h.MaHd == maHD);
+
+            if (existingHoaDon == null)
+                return false;
+
+            // Xóa tất cả các chi tiết hóa đơn trước
+            _context.ChiTietHoaDons.RemoveRange(existingHoaDon.ChiTietHoaDons);
+
+            // Xóa hóa đơn
+            _context.HoaDons.Remove(existingHoaDon);
+
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

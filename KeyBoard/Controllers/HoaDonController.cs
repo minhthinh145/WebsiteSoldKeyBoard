@@ -63,5 +63,17 @@ namespace KeyBoard.Controllers
             }
             return StatusCode(500);
         }
+
+        //delete hoadon by hoadon id
+        [HttpDelete("delete-byid/{maHd}")]
+        public async Task<IActionResult> DeleteHoaDonById(int maHd) 
+        {
+            var result = await _repo.DeleteHoaDonByIdAsync(maHd);
+            if (result)
+            {
+                return Ok(new { Message = "Xóa hóa đơn thành công" });
+            }
+            return StatusCode(500);
+        }
     }
 }

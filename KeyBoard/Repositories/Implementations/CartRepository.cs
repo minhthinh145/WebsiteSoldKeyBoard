@@ -15,20 +15,8 @@ namespace KeyBoard.Repositories.Implementations
         }
         public async Task AddToCartAsync(Cart cart)
         {
-            var existingCart = await _context.Carts
-                .FirstOrDefaultAsync(c => c.UserId == cart.UserId && c.ProductId == cart.ProductId);
-
-            if (existingCart != null)
-            {
-                existingCart.Quantity += cart.Quantity;
-                _context.Carts.Update(existingCart); // Cần gọi Update() để EF Core theo dõi sự thay đổi
-            }
-            else
-            {
-                await _context.Carts.AddAsync(cart);
-            }
-
-            await _context.SaveChangesAsync(); // Lưu thay đổi vào database
+            await _context.Carts.AddAsync(cart);
+            await _context.SaveChangesAsync();
         }
 
 

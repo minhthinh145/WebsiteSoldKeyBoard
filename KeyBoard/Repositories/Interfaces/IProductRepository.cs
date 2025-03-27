@@ -5,10 +5,10 @@ namespace KeyBoard.Repositories.Interfaces
 {
     public interface IProductRepository
     {
-        Task<IEnumerable<ProductDTO>> GetAllProductsAsync();
-        Task<ProductDTO> GetProductByIdAsync(Guid id);
-        Task<Guid> AddProductAsync(ProductDTO productDto);
-        Task UpdateProductAsync(Guid id, ProductDTO productDto);
-        Task DeleteProductAsync(Guid id);
+        Task<IEnumerable<Product>> GetAllProductsAsync();
+        Task<Product?> GetProductByIdAsync(Guid id);
+        Task<Product> AddProductAsync(Product product); 
+        Task<bool> UpdateProductAsync(Product product); 
+        Task DeleteProductAsync(Product product);
     }
 }

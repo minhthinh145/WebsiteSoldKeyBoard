@@ -9,6 +9,7 @@
         public DateTime? NgayGiao { get; set; }
         public string? HoTen { get; set; }
         public string DiaChi { get; set; } = null!;
+        public Decimal TongTien { get; set; }
         public string? SoDienThoai { get; set; }
         public string CachThanhToan { get; set; } = null!;
         public string CachVanChuyen { get; set; } = null!;

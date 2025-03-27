@@ -4,6 +4,7 @@ using KeyBoard.DTOs;
 using KeyBoard.Helpers;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,11 @@ namespace KeyBoard.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly ICartRepository _repo;
-        private readonly IMapper _mapper;
+        private readonly ICartService _service;
 
-        public CartController(ICartRepository repo, IMapper mapper) 
+        public CartController(ICartService service) 
         {
-            _repo = repo;
-            _mapper= mapper;
+            _service = service;
         }
 
         //get cart
@@ -35,9 +34,8 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xem giỏ hàng" });
             }
 
-            var cartItems = await _repo.GetCartItemsAsync(userId);
-            var cartDtos = _mapper.Map<List<CartItemDTO>>(cartItems);
-            return Ok(cartDtos);
+            var listCartDTO = await _service.GetCartItemsAsync(userId);
+            return Ok(listCartDTO);
         }
 
 
@@ -52,12 +50,12 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng" });
             }
             cartDTO.UserId = userId;
-            var cart = _mapper.Map<Cart>(cartDTO);
-            cart.Id = Guid.NewGuid();
-            cart.UserId = userId;
-            cart.CreatedAt = DateTime.UtcNow;
+            var result = await _service.AddToCartAsync(cartDTO); // Gọi Service
 
-            await _repo.AddToCartAsync(cart);
+            if (!result)
+            {
+                return BadRequest(new { message = "Không thể thêm sản phẩm vào giỏ hàng" });
+            }
             return Ok(new { message = "Sản phẩm đã được thêm vào giỏ hàng" });
         }
 
@@ -71,15 +69,12 @@ namespace KeyBoard.Controllers
             {
                 return Unauthorized(new { message = "Bạn cần đăng nhập để cập nhật giỏ hàng" });
             }
-
-            var existingCart = await _repo.GetCartItemAsync(userId, cartDTO.ProductId);
-            if (existingCart == null)
+            cartDTO.UserId = userId;
+            var result = await _service.UpdateCartAsync(cartDTO);
+            if (!result) 
             {
-                return NotFound(new { message = "Sản phẩm không tồn tại trong giỏ hàng" });
+                return BadRequest(new { message = "Không thể cập nhật giỏ hàng" });
             }
-
-            existingCart.Quantity = cartDTO.Quantity; // Cập nhật số lượng
-            await _repo.UpdateCartAsync(existingCart);
             return Ok(new { message = "Giỏ hàng đã được cập nhật" });
         }
 
@@ -94,13 +89,11 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xóa sản phẩm khỏi giỏ hàng" });
             }
 
-            var cart = await _repo.GetCartItemAsync(userId, productId);
-            if (cart == null)
+            var result = await _service.RemoveFromCartAsync(userId, productId);
+            if (!result)
             {
-                return NotFound(new { message = "Sản phẩm không tồn tại trong giỏ hàng" });
+                return BadRequest(new { message = "Không thể xóa sản phẩm khỏi giỏ hàng" });
             }
-
-            await _repo.RemoveFromCartAsync(cart);
             return Ok(new { message = "Sản phẩm đã được xóa khỏi giỏ hàng" });
         }
 
@@ -114,7 +107,12 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xóa giỏ hàng" });
             }
 
-            await _repo.ClearCartAsync(userId);
+            var result = await _service.ClearCartAsync(userId);
+            if (!result)
+            {
+                return BadRequest(new { message = "Không thể xóa giỏ hàng" });
+            }
+
             return Ok(new { message = "Giỏ hàng đã được xóa" });
         }
         private string? GetUserIdFromToken()

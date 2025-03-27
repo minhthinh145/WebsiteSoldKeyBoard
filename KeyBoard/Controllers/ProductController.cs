@@ -4,6 +4,7 @@ using KeyBoard.DTOs;
 using KeyBoard.Helpers;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,11 @@ namespace KeyBoard.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IProductRepository _repo;
+        private readonly IProductService _service;
 
-        public ProductController(IProductRepository repo)
+        public ProductController(IProductService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
         //Get List of item
@@ -27,7 +28,7 @@ namespace KeyBoard.Controllers
         [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _repo.GetAllProductsAsync();
+            var products = await _service.GetAllProductsAsync();
             return Ok(products);
         }
 
@@ -36,10 +37,10 @@ namespace KeyBoard.Controllers
         [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetById(Guid id) 
         {
-            var product = await _repo.GetProductByIdAsync(id);
-            if (product == null) 
+           var product = await _service.GetProductByIdAsync(id);
+           if(product == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy sản phẩm.");
             }
             return Ok(product);
         }
@@ -56,38 +57,42 @@ namespace KeyBoard.Controllers
 
             try
             {
-                var _newKB = await _repo.AddProductAsync(productDTO);
-                var kb = await _repo.GetProductByIdAsync(_newKB);
-                return kb == null ? NotFound() : Ok(kb);
+                var product = await _service.AddProductAsync(productDTO);
+
+                if (product == null)
+                {
+                    return BadRequest("Không thể tạo sản phẩm.");
+                }
+
+                return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Lỗi server: {ex.Message}");
             }
         }
-
-
         //Update a product
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductDTO productDTO)
         {
-            if (id != productDTO.Id)
-            {
-                return BadRequest("Id không khớp với dữ liệu đầu vào.");
-            }
             if (productDTO == null || !ModelState.IsValid)
             {
                 return BadRequest("Dữ liệu không hợp lệ.");
             }
 
-            var product = await _repo.GetProductByIdAsync(id);
-            if (product == null)
+            var existingProduct = await _service.GetProductByIdAsync(id);
+            if (existingProduct == null)
             {
                 return NotFound("Không tìm thấy sản phẩm.");
             }
 
-            await _repo.UpdateProductAsync(id, productDTO);
+            var isUpdated = await _service.UpdateProductAsync(id, productDTO);
+            if (!isUpdated)
+            {
+                return StatusCode(500, "Cập nhật sản phẩm thất bại.");
+            }
+
             return Ok("Cập nhật thành công.");
         }
 
@@ -97,15 +102,17 @@ namespace KeyBoard.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
         {
-            var product = await _repo.GetProductByIdAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound("Không tìm thấy sản phẩm.");
+                var isDeleted = await _service.DeleteProductAsync(id);
+                return isDeleted ? Ok("Xóa sản phẩm thành công.") : NotFound("Không tìm thấy sản phẩm.");
             }
-
-            await _repo.DeleteProductAsync(id);
-            return Ok("Xoá thành công.");
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi server: {ex.Message}");
+            }
         }
+
 
     }
 }

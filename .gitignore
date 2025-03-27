@@ -44,3 +44,4 @@ wwwroot/js/
 publish/
 appsettings.json
 appsettings.*.json
+MyProject.Tests/

@@ -5,11 +5,12 @@ namespace KeyBoard.Services.VNPayServices
     public interface IVNPayService
     {
         /// <summary>
-        /// Tạo URL thanh toán VNPay dựa trên thông tin đơn hàng.
+        /// Tạo URL thanh toán VNPay dựa trên mã hóa đơn.
         /// </summary>
-        /// <param name="request">Thông tin thanh toán</param>
+        /// <param name="maHD">Mã hóa đơn</param>
+        /// <param name="httpContext">HttpContext để lấy thông tin request</param>
         /// <returns>URL để redirect người dùng đến VNPay</returns>
-        string CreatePaymentUrl(VNPayRequestDTO request, HttpContext httpContext);
+        Task<string> CreatePaymentUrl(int maHD, HttpContext httpContext);
 
         /// <summary>
         /// Xử lý phản hồi từ VNPay sau khi thanh toán.

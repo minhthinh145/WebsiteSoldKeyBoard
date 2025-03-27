@@ -1,7 +1,9 @@
 ﻿using KeyBoard.DTOs.VNPayDTOs;
+using KeyBoard.Repositories.Interfaces;
 using KeyBoard.Services.VNPayServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using static KeyBoard.Helpers.VNPayHelper;
 
 namespace KeyBoard.Controllers
@@ -10,19 +12,22 @@ namespace KeyBoard.Controllers
     [ApiController]
     public class VNPayController : ControllerBase
     {
+        private readonly IHoaDonRepository _hoadon;
         private readonly IVNPayService _vnPayService;
 
-        public VNPayController(IVNPayService vnPayService)
+        public VNPayController(IVNPayService vnPayService , IHoaDonRepository hoadon)
         {
+            _hoadon = hoadon;
             _vnPayService = vnPayService;
         }
         /// <summary>
         /// API tạo URL thanh toán VNPay
         /// </summary>
-        [HttpPost("create-payment-url")]
-        public IActionResult CreatePaymentUrl([FromBody] VNPayRequestDTO request)
+        [HttpPost("create-payment-url/{maHD}")]
+        public async Task<IActionResult> CreatePaymentUrl([FromBody] int maHD)
         {
-            var paymentUrl = _vnPayService.CreatePaymentUrl(request, HttpContext);
+
+            var paymentUrl = _vnPayService.CreatePaymentUrl(maHD, HttpContext);
            
             return Ok(new { url = paymentUrl });
         }
