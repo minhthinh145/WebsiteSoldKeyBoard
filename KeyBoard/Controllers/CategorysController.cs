@@ -2,6 +2,7 @@
 using KeyBoard.Data;
 using KeyBoard.DTOs;
 using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,82 +13,65 @@ namespace KeyBoard.Controllers
     [ApiController]
     public class CategorysController : ControllerBase
     {
-        private readonly ICategoryRepository _repo;
-        private readonly IMapper _mapper;
+        private readonly ICategoryService _service;
 
-        public CategorysController(ICategoryRepository _repo, IMapper mapper)
+        public CategorysController(ICategoryService service)
         {
-            this._repo = _repo;
-            _mapper = mapper;
+            _service = service;
         }
 
         //get list category
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await _repo.GetCategoriesAsync();
-            var categoriesDTO = _mapper.Map<List<CategoryDTO>>(categories);
+            var categoriesDTO = await _service.GetCategoriesAsync();
             return Ok(categoriesDTO);
         }
         //get category by id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(Guid id) 
         {
-           var category = await _repo.GetCategoryAsync(id);
-           var categoryDTO = _mapper.Map<CategoryDTO>(category);
-           return Ok(categoryDTO);
+            var category = await _service.GetCategoryByIdAsync(id);
+            return Ok(category);
         }
 
         //Update category
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(Guid id,CategoryDTO categoryDTO) 
+        public async Task<IActionResult> UpdateCategory(Guid id, CategoryDTO categoryDTO)
         {
-            if (categoryDTO.Id != id) 
+            if (categoryDTO.Id != id)
             {
-                return BadRequest("ID không khớp");
+                return BadRequest("ID không khớp.");
             }
-            //mapper to Model
-            var categoryModel = _mapper.Map<Category>(categoryDTO);
-            try
-            {
-                await _repo.UpdateCategoryAsync(categoryModel);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            var updateCate = _mapper.Map<CategoryDTO>(categoryModel);
-            return Ok(updateCate);
-        }
 
+            var updatedCategory = await _service.UpdateCategoryAsync(id, categoryDTO);
+
+            if (updatedCategory == null)
+            {
+                return NotFound("Không tìm thấy danh mục.");
+            }
+
+            return Ok(updatedCategory); // Trả về DTO sau khi cập nhật
+        }
         //add category
         [HttpPost]
-        public async Task<IActionResult> AddCategory(CategoryDTO categoryDTO) 
+        public async Task<IActionResult> AddCategory(CategoryDTO categoryDTO)
         {
-            var categoryModel = _mapper.Map<Category>(categoryDTO);
-            //dont need to create a new id because entityframework do it
-            await _repo.AddCategoryAsync(categoryModel);
-            return Ok(categoryDTO);
+            var createdCategory = await _service.AddCategoryAsync(categoryDTO);
+
+            return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id }, createdCategory);
         }
 
-        //delete category
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(Guid id) 
+        public async Task<IActionResult> DeleteCategory(Guid id)
         {
-            try
-            {
-                var category = await _repo.GetCategoryAsync(id);
-                if (category == null)
-                {
-                    return BadRequest("Đã delete hoặc k tìm thấy category");
-                }
-                await _repo.DeleteCategoryAsync(id);
-                return Ok(category);
-            }
-            catch (Exception ex)
+            var result = await _service.DeleteCategoryAsync(id);
+            if (!result) // Nếu không tìm thấy category hoặc xóa không thành công
             {
                 return NotFound();
             }
+            return Ok();
         }
+
     }
 }

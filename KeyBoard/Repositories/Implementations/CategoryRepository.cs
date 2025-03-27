@@ -14,25 +14,19 @@ namespace KeyBoard.Repositories.Implementations
         }
         public async Task AddCategoryAsync(Category category)
         {
-            var existingCategory = await _context.Categories.AnyAsync(c => c.Name == category.Name);
-            if (existingCategory)
-            {
-                throw new Exception("Category already exists");
-            }
             await _context.Categories.AddAsync(category);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteCategoryAsync(Guid id)
         {
-            //check
-            var existingCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
-            if (existingCategory == null)
+            var category = await _context.Categories.FindAsync(id);
+
+            if (category != null)
             {
-                throw new Exception("Category not found");
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
             }
-            _context.Categories.Remove(existingCategory);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<List<Category>> GetCategoriesAsync()
@@ -57,13 +51,7 @@ namespace KeyBoard.Repositories.Implementations
 
         public async Task UpdateCategoryAsync(Category category)
         {
-            var existingCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category.Id);
-            if (existingCategory == null)
-            {
-                throw new Exception("Category not found");
-            }
-            // Update only necessary fields
-            _context.Entry(existingCategory).CurrentValues.SetValues(category);
+            _context.Entry(category).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
     }
