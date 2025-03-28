@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using KeyBoard.Data;
 using KeyBoard.DTOs.HoaDonsDTOs;
-using KeyBoard.Repositories.Interfaces;
-using Microsoft.AspNetCore.Http;
+using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KeyBoard.Controllers
@@ -11,28 +9,74 @@ namespace KeyBoard.Controllers
     [ApiController]
     public class ChiTietHoaDonController : ControllerBase
     {
-        private readonly IChiTietHoaDonRepository _repo;
+        private readonly IChiTietHoaDonService _service;
         private readonly IMapper _mapper;
 
-        public ChiTietHoaDonController(IChiTietHoaDonRepository repo , IMapper mapper)
+        public ChiTietHoaDonController(IChiTietHoaDonService service, IMapper mapper)
         {
-            _repo = repo;
+            _service = service;
             _mapper = mapper;
         }
 
-        //get chitiethoadon by hoadonid
+        // Lấy danh sách ChiTietHoaDon theo mã Hóa Đơn
         [HttpGet("ByHoaDon/{maHd}")]
         public async Task<IActionResult> GetChiTietHoaDonsByHoaDonId(int maHd)
         {
-            var chitiethoadons = await _repo.GetByHoaDonIdAsync(maHd);
-            if (chitiethoadons == null)
+            try
             {
-                return NotFound();
+                var chitiethoadons = await _service.GetChiTietHoaDonsByHoaDonIdAsync(maHd);
+                return Ok(chitiethoadons);
             }
-            return Ok(chitiethoadons);
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Không tìm thấy chi tiết hóa đơn nào cho hóa đơn ID {maHd}.");
+            }
         }
 
-       
+        // Lấy thông tin 1 ChiTietHoaDon theo mã ChiTietHoaDon
+        [HttpGet("{chiTietId}")]
+        public async Task<IActionResult> GetChiTietHoaDonById(int chiTietId)
+        {
+            try
+            {
+                var chiTiet = await _service.GetChiTietHoaDonsByChiTietHoaDonIdAsync(chiTietId);
+                return Ok(chiTiet);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Không tìm thấy chi tiết hóa đơn với ID {chiTietId}.");
+            }
+        }
 
+        // Cập nhật số lượng & đơn giá của một chi tiết hóa đơn
+        [HttpPut("{chiTietId}")]
+        public async Task<IActionResult> UpdateChiTietHoaDon(int chiTietId, [FromBody] ChiTietHoaDonDTO dto)
+        {
+            if (dto == null) return BadRequest("Dữ liệu không hợp lệ.");
+
+            try
+            {
+                var updated = await _service.UpdateChiTietHoaDonAsync(chiTietId, dto.SoLuong, dto.DonGia);
+                if (!updated)
+                    return BadRequest("Không có thay đổi nào được thực hiện.");
+
+                return Ok("Cập nhật chi tiết hóa đơn thành công.");
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Không tìm thấy chi tiết hóa đơn với ID {chiTietId}.");
+            }
+        }
+
+        // Xóa một chi tiết hóa đơn
+        [HttpDelete("{chiTietId}")]
+        public async Task<IActionResult> DeleteChiTietHoaDon(int chiTietId)
+        {
+            var deleted = await _service.DeleteChiTietHoaDonAsync(chiTietId);
+            if (!deleted)
+                return NotFound($"Không tìm thấy chi tiết hóa đơn với ID {chiTietId}.");
+
+            return Ok("Xóa chi tiết hóa đơn thành công.");
+        }
     }
 }

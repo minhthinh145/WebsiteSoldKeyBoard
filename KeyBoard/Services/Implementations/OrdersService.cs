@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using KeyBoard.Data;
 using KeyBoard.DTOs;
+using KeyBoard.Helpers;
 using KeyBoard.Repositories.Interfaces;
 using KeyBoard.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,7 @@ namespace KeyBoard.Services.Implementations
             order.Id = Guid.NewGuid();
             order.UserId = userId;
             order.CreatedAt = DateTime.UtcNow;
-            order.OrderStatus = "Pending"; 
+            order.OrderStatus = StattusPayment.Pending; 
             order.TotalAmount = 0;
 
             // Tính tổng tiền
@@ -74,7 +75,7 @@ namespace KeyBoard.Services.Implementations
                 Id = Guid.NewGuid(),
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow,
-                OrderStatus = "Pending",
+                OrderStatus = StattusPayment.Pending,
                 OrderDetails = new List<OrderDetail>(),
                 TotalAmount = 0
             };
@@ -140,19 +141,12 @@ namespace KeyBoard.Services.Implementations
                 throw new KeyNotFoundException("Order not found");
             }
 
-            if (!IsValidStatus(newStatus))
+            if (!StattusPayment.IsValidStatus(newStatus))
             {
                 throw new ArgumentException("Invalid order status");
             }
 
             return await _repo.UpdateOrderStatusAsync(orderId, newStatus);
-        }
-
-        // Kiểm tra trạng thái hợp lệ
-        private bool IsValidStatus(string status)
-        {
-            var validStatuses = new List<string> { "Pending", "Processing", "Shipped", "Completed", "Canceled" };
-            return validStatuses.Contains(status);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using KeyBoard.Data;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.Implementations;
+using KeyBoard.Services.Interfaces;
 using KeyBoard.Services.VNPayServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -84,6 +86,14 @@ builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IVNPayService, VNPayServices>();
 builder.Services.AddScoped<IHoaDonRepository, HoaDonRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
+//đăng ký scoped phần services
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IOrderDetailsService, OrderDetailsService>();
+builder.Services.AddScoped<IHoaDonService, HoaDonService>();
+
 var app = builder.Build();  
 
 // Configure the HTTP request pipeline.

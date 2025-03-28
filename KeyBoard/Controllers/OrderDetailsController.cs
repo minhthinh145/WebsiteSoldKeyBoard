@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using KeyBoard.Data;
+﻿using KeyBoard.Data;
 using KeyBoard.DTOs;
-using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,39 +10,28 @@ namespace KeyBoard.Controllers
     [ApiController]
     public class OrderDetailsController : ControllerBase
     {
-        private readonly IOrderDetailRepository _repo;
-        private readonly IMapper _mapper;
+        private readonly IOrderDetailsService _service;
 
-        public OrderDetailsController(IOrderDetailRepository repo, IMapper mapper)
+        public OrderDetailsController(IOrderDetailsService service)
         {
-            _repo = repo;
-            _mapper = mapper;
+            _service = service;
         }
 
         //get all OrderDetails by OrderId
         [HttpGet("ByOrder/{orderId}")]
         public async Task<IActionResult> GetOrderDetailsByOrderId(Guid orderId)
         {
-            var orderDetails = await _repo.GetOrderDetailsByOrderIdAsync(orderId);
-            if (orderDetails == null)
-            {
-                return NotFound();
-            }
-            var orderDTOs = _mapper.Map<List<OrderDetailDTO>>(orderDetails);
-            return Ok(orderDTOs);
+            var orderDetails = await _service.GetOrderDetailsByOrderIdAsync(orderId);
+
+            return Ok(orderDetails);
         }
 
         // Get a single OrderDetail by Id
         [HttpGet("ById/{orderDetailId}")]
         public async Task<IActionResult> GetOrderDetailById(Guid orderDetailId)
         {
-            var orderDetail = await _repo.GetOrderDetailByIdAsync(orderDetailId);
-            if (orderDetail == null)
-            {
-                return NotFound();
-            }
-            var orderDTO = _mapper.Map<OrderDetailDTO>(orderDetail);
-            return Ok(orderDTO);
+           var orderDetail = await _service.GetOrderDetailByIdAsync(orderDetailId);
+           return Ok(orderDetail);
         }
 
         //Add a new OrderDetail
@@ -54,8 +42,7 @@ namespace KeyBoard.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var orderDetail = _mapper.Map<OrderDetail>(orderDetailDTO);
-            var result = await _repo.AddOrderDetailAsync(orderDetail);
+            var result = await _service.AddOrderDetailAsync(orderDetailDTO);
             if (result)
             {
                 return Ok();
@@ -71,8 +58,7 @@ namespace KeyBoard.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var orderDetail = _mapper.Map<OrderDetail>(orderDetailDTO);
-            var result = await _repo.UpdateOrderDetailAsync(orderDetail);
+            var result = await _service.UpdateOrderDetailAsync(orderDetailDTO);
             if (result)
             {
                 return Ok(new { message = "OrderDetail updated successfully." });
@@ -84,13 +70,7 @@ namespace KeyBoard.Controllers
         [HttpDelete("{orderDetailId}")]
         public async Task<IActionResult> RemoveOrderDetail(Guid orderDetailId)
         {
-            var existingOrderDetail = await _repo.GetOrderDetailByIdAsync(orderDetailId);
-            if (existingOrderDetail == null)
-            {
-                return NotFound(new { message = "Order detail not found." });
-            }
-
-            var result = await _repo.RemoveOrderDetailAsync(orderDetailId);
+            var result = await _service.RemoveOrderDetailAsync(orderDetailId);
             if (result)
             {
                 return Ok(new { message = "OrderDetail deleted successfully." });
