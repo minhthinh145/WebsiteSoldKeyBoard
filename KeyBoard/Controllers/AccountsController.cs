@@ -1,7 +1,6 @@
-﻿using KeyBoard.Repositories.Interfaces;
-    using KeyBoard.DTOs.AuthenDTOs;
-using Microsoft.AspNetCore.Http;
+﻿using KeyBoard.DTOs.AuthenDTOs;
 using Microsoft.AspNetCore.Mvc;
+using KeyBoard.Services.Interfaces;
 
 namespace KeyBoard.Controllers
 {
@@ -9,17 +8,17 @@ namespace KeyBoard.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountRepository repo;
+        private readonly IAccountService _service;
 
-        public AccountsController(IAccountRepository repo)
+        public AccountsController(IAccountService service)
         {
-            this.repo = repo;
+            _service = service;
         }
 
         [HttpPost("SignUp")]
         public async Task<IActionResult> SignUp(SignUpDTO signup)
         {
-            var result = await repo.SignUpAsync(signup);
+            var result = await _service.SignUpAsync(signup);
             if (result.Succeeded)
             {
                 return Ok(result.Succeeded);
@@ -29,7 +28,7 @@ namespace KeyBoard.Controllers
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignIn(SignInDTO signin)
         {
-            var token = await repo.SignInAsync(signin);
+            var token = await _service.SignInAsync(signin);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized();

@@ -1,10 +1,7 @@
-﻿using AutoMapper;
-using KeyBoard.Data;
-using KeyBoard.DTOs;
-using KeyBoard.Repositories.Interfaces;
+﻿using KeyBoard.DTOs;
+using KeyBoard.Helpers;
 using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KeyBoard.Controllers
@@ -21,6 +18,7 @@ namespace KeyBoard.Controllers
         }
 
         //get list category
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
@@ -28,6 +26,7 @@ namespace KeyBoard.Controllers
             return Ok(categoriesDTO);
         }
         //get category by id
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(Guid id) 
         {
@@ -36,6 +35,7 @@ namespace KeyBoard.Controllers
         }
 
         //Update category
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(Guid id, CategoryDTO categoryDTO)
         {
@@ -54,6 +54,8 @@ namespace KeyBoard.Controllers
             return Ok(updatedCategory); // Trả về DTO sau khi cập nhật
         }
         //add category
+        [Authorize(Roles = ApplicationRole.Admin)]
+
         [HttpPost]
         public async Task<IActionResult> AddCategory(CategoryDTO categoryDTO)
         {
@@ -62,6 +64,7 @@ namespace KeyBoard.Controllers
             return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id }, createdCategory);
         }
 
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {

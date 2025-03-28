@@ -1,7 +1,7 @@
-﻿using KeyBoard.Data;
-using KeyBoard.DTOs;
+﻿using KeyBoard.DTOs;
+using KeyBoard.Helpers;
 using KeyBoard.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KeyBoard.Controllers
@@ -18,6 +18,7 @@ namespace KeyBoard.Controllers
         }
 
         //get all OrderDetails by OrderId
+        [Authorize]
         [HttpGet("ByOrder/{orderId}")]
         public async Task<IActionResult> GetOrderDetailsByOrderId(Guid orderId)
         {
@@ -27,6 +28,7 @@ namespace KeyBoard.Controllers
         }
 
         // Get a single OrderDetail by Id
+        [Authorize]
         [HttpGet("ById/{orderDetailId}")]
         public async Task<IActionResult> GetOrderDetailById(Guid orderDetailId)
         {
@@ -35,6 +37,7 @@ namespace KeyBoard.Controllers
         }
 
         //Add a new OrderDetail
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpPost]
         public async Task<IActionResult> AddOrderDetail(OrderDetailDTO orderDetailDTO)
         {
@@ -51,6 +54,7 @@ namespace KeyBoard.Controllers
         }
 
         //Update an OrderDetail
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpPut]
         public async Task<IActionResult> UpdateOrderDetail(OrderDetailDTO orderDetailDTO)
         {
@@ -67,6 +71,7 @@ namespace KeyBoard.Controllers
         }
 
         //Delete an OrderDetail
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpDelete("{orderDetailId}")]
         public async Task<IActionResult> RemoveOrderDetail(Guid orderDetailId)
         {

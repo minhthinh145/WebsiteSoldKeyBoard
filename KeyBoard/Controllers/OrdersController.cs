@@ -1,13 +1,8 @@
-﻿    using AutoMapper;
-using KeyBoard.Data;
-using KeyBoard.DTOs;
+﻿using KeyBoard.DTOs;
 using KeyBoard.Helpers;
-using KeyBoard.Repositories.Interfaces;
 using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace KeyBoard.Controllers
 {

@@ -1,14 +1,8 @@
-﻿using AutoMapper;
-using KeyBoard.Data;
-using KeyBoard.DTOs;
+﻿using KeyBoard.DTOs;
 using KeyBoard.Helpers;
-using KeyBoard.Repositories.Implementations;
-using KeyBoard.Repositories.Interfaces;
 using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace KeyBoard.Controllers
 {
@@ -47,7 +41,7 @@ namespace KeyBoard.Controllers
 
         //Create a product
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = ApplicationRole.Admin)]
         public async Task<IActionResult> CreateNewProduct([FromBody] ProductDTO productDTO)
         {
             if (productDTO == null || !ModelState.IsValid)
@@ -73,7 +67,7 @@ namespace KeyBoard.Controllers
         }
         //Update a product
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = ApplicationRole.Admin)]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductDTO productDTO)
         {
             if (productDTO == null || !ModelState.IsValid)
@@ -99,7 +93,7 @@ namespace KeyBoard.Controllers
 
         //Delete a product
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = ApplicationRole.Admin)]
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
         {
             try

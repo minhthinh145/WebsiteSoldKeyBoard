@@ -1,12 +1,6 @@
-﻿using AutoMapper;
-using KeyBoard.Data;
-using KeyBoard.DTOs;
-using KeyBoard.Helpers;
-using KeyBoard.Repositories.Implementations;
-using KeyBoard.Repositories.Interfaces;
+﻿using KeyBoard.DTOs;
 using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -25,7 +19,7 @@ namespace KeyBoard.Controllers
 
         //get cart
         [HttpGet]
-        [Authorize(Roles = ApplicationRole.Customer)]
+        [Authorize]
         public async Task<IActionResult> GetCart()
         {
             var userId = User.FindFirstValue("UserId");
@@ -80,6 +74,7 @@ namespace KeyBoard.Controllers
 
 
         //delete
+        [Authorize]
         [HttpDelete("{userId}/{productId}")]
         public async Task<IActionResult> RemoveFromCart(Guid productId)
         {
@@ -98,6 +93,7 @@ namespace KeyBoard.Controllers
         }
 
         //Clear
+        [Authorize]
         [HttpDelete]
         public async Task<IActionResult> ClearCart()
         {

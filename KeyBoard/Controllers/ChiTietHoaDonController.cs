@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using KeyBoard.DTOs.HoaDonsDTOs;
+using KeyBoard.Helpers;
 using KeyBoard.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KeyBoard.Controllers
@@ -10,15 +12,14 @@ namespace KeyBoard.Controllers
     public class ChiTietHoaDonController : ControllerBase
     {
         private readonly IChiTietHoaDonService _service;
-        private readonly IMapper _mapper;
 
-        public ChiTietHoaDonController(IChiTietHoaDonService service, IMapper mapper)
+        public ChiTietHoaDonController(IChiTietHoaDonService service)
         {
             _service = service;
-            _mapper = mapper;
         }
 
         // Lấy danh sách ChiTietHoaDon theo mã Hóa Đơn
+        [Authorize(Roles = $"{ApplicationRole.Customer},{ApplicationRole.Admin}")]
         [HttpGet("ByHoaDon/{maHd}")]
         public async Task<IActionResult> GetChiTietHoaDonsByHoaDonId(int maHd)
         {
@@ -34,6 +35,7 @@ namespace KeyBoard.Controllers
         }
 
         // Lấy thông tin 1 ChiTietHoaDon theo mã ChiTietHoaDon
+        [Authorize(Roles = $"{ApplicationRole.Customer},{ApplicationRole.Admin}")]
         [HttpGet("{chiTietId}")]
         public async Task<IActionResult> GetChiTietHoaDonById(int chiTietId)
         {
@@ -49,6 +51,7 @@ namespace KeyBoard.Controllers
         }
 
         // Cập nhật số lượng & đơn giá của một chi tiết hóa đơn
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpPut("{chiTietId}")]
         public async Task<IActionResult> UpdateChiTietHoaDon(int chiTietId, [FromBody] ChiTietHoaDonDTO dto)
         {
@@ -69,6 +72,7 @@ namespace KeyBoard.Controllers
         }
 
         // Xóa một chi tiết hóa đơn
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpDelete("{chiTietId}")]
         public async Task<IActionResult> DeleteChiTietHoaDon(int chiTietId)
         {

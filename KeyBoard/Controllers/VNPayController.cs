@@ -1,10 +1,8 @@
-﻿using KeyBoard.DTOs.VNPayDTOs;
+﻿using KeyBoard.Helpers;
 using KeyBoard.Repositories.Interfaces;
 using KeyBoard.Services.VNPayServices;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using static KeyBoard.Helpers.VNPayHelper;
 
 namespace KeyBoard.Controllers
 {
@@ -23,11 +21,12 @@ namespace KeyBoard.Controllers
         /// <summary>
         /// API tạo URL thanh toán VNPay
         /// </summary>
+        [Authorize(Roles = ApplicationRole.Customer)]
         [HttpPost("create-payment-url/{maHD}")]
         public async Task<IActionResult> CreatePaymentUrl([FromBody] int maHD)
         {
 
-            var paymentUrl = _vnPayService.CreatePaymentUrl(maHD, HttpContext);
+            var paymentUrl = await _vnPayService.CreatePaymentUrl(maHD, HttpContext);
            
             return Ok(new { url = paymentUrl });
         }
@@ -46,7 +45,7 @@ namespace KeyBoard.Controllers
                 var response = _vnPayService.ProcessPaymentResponse(HttpContext.Request.Query);
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch 
             {
                 return BadRequest("Lỗi xử lý phản hồi thanh toán.");
             }

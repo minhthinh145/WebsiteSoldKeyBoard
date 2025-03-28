@@ -1,9 +1,6 @@
-﻿using AutoMapper;
-using KeyBoard.DTOs.HoaDonsDTOs;
-using KeyBoard.Repositories.Implementations;
-using KeyBoard.Repositories.Interfaces;
+﻿using KeyBoard.Helpers;
 using KeyBoard.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KeyBoard.Controllers
@@ -19,6 +16,7 @@ namespace KeyBoard.Controllers
             _service = service;
         }
         //get hoadon by userid
+        [Authorize]
         [HttpGet("ByUser/{userId}")]
         public async Task<IActionResult> GetHoaDonsByUserId(string userId)
         {
@@ -26,6 +24,7 @@ namespace KeyBoard.Controllers
             return Ok(hoaDonDTO);
         }
         //get hoadon by id
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHoaDonById(int id)
         {
@@ -41,6 +40,7 @@ namespace KeyBoard.Controllers
         }
 
         //add hoadon form OrderId
+        [Authorize]
         [HttpPost("create-from-order/{orderId}")]
         public async Task<IActionResult> CreateHoaDonFromOrder(Guid orderId)
         {
@@ -53,6 +53,7 @@ namespace KeyBoard.Controllers
         }
 
         //update status hoadon
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpPut("update-status/{maHd}")]
         public async Task<IActionResult> UpdateStatusHoaDon(int maHd, [FromBody] int status)
         {
@@ -65,6 +66,7 @@ namespace KeyBoard.Controllers
         }
 
         //delete hoadon by hoadon id
+        [Authorize(Roles = ApplicationRole.Admin)]
         [HttpDelete("delete-byid/{maHd}")]
         public async Task<IActionResult> DeleteHoaDonById(int maHd) 
         {
