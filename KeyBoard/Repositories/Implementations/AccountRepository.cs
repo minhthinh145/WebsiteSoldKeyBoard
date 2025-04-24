@@ -2,6 +2,7 @@
 using KeyBoard.DTOs.AuthenDTOs;
 using KeyBoard.Helpers;
 using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

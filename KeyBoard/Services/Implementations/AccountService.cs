@@ -1,70 +1,50 @@
-﻿using AutoMapper;
+﻿// KeyBoard.Services.Implementations/AccountService.cs
 using KeyBoard.Data;
 using KeyBoard.DTOs.AuthenDTOs;
-using KeyBoard.Helpers;
-using KeyBoard.Repositories.Interfaces;
 using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using AutoMapper;
+using KeyBoard.Helpers;
 
 namespace KeyBoard.Services.Implementations
 {
     public class AccountService : IAccountService
     {
-        private readonly IAccountRepository _repo;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly IAuthService _authService;
 
-        public AccountService(IAccountRepository repo, IConfiguration configuration, IMapper mapper) 
+        public AccountService(UserManager<ApplicationUser> userManager, IConfiguration configuration, IMapper mapper, IAuthService authService)
         {
-            _mapper = mapper;
-            _repo = repo;
+            _userManager = userManager;
             _configuration = configuration;
+            _mapper = mapper;
+            _authService = authService;
         }
 
         public async Task<UserProfileDTO> FindUserById(string userID)
         {
-            var user = await _repo.FindByUserIDAsync(userID);
+            var user = await _userManager.FindByIdAsync(userID);
             return user == null ? null : _mapper.Map<UserProfileDTO>(user);
         }
 
-        public async Task<string> SignInAsync(SignInDTO signin)
+        public async Task<TokenResponseDTO> SignInAsync(SignInDTO signin)
         {
-            var user = await _repo.FindByEmailAsync(signin.Email);
-            if (user == null || !await _repo.CheckPasswordAsync(user, signin.Password))
+            var user = await _userManager.FindByEmailAsync(signin.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, signin.Password))
             {
-                return string.Empty;
+                return null; // Hoặc throw exception tùy yêu cầu
             }
-            //create authClaims
-            var authClaims = new List<Claim>
+
+            var (accessToken, refreshToken) = await _authService.GenerateTokensAsync(user);
+            return new TokenResponseDTO
             {
-                new Claim(ClaimTypes.Email, signin.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Token ID
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim("Username", user.UserName)
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
             };
-
-            //add role
-            var userRole = await _repo.GetUserRolesAsync(user);
-            foreach (var role in userRole)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            //create token
-            var authKey = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
-            var token = new JwtSecurityToken(
-                    issuer: _configuration["JWT:ValidIssuer"],
-                    audience: _configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddMinutes(55),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(authKey), SecurityAlgorithms.HmacSha512Signature)
-                );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public async Task<IdentityResult> SignUpAsync(SignUpDTO signup)
@@ -73,27 +53,25 @@ namespace KeyBoard.Services.Implementations
             {
                 Email = signup.Email,
                 UserName = signup.Username,
-                FirstName = signup.Username,
-                LastName = signup.Username,
                 PhoneNumber = signup.PhoneNumber,
-
             };
 
-            // Tạo người dùng mới
-            var result = await _repo.CreateUserAsync(user, signup.Password);
-
-
-            // Nếu thành công, kiểm tra vai trò
-            if (!await _repo.RoleExistsAsync(ApplicationRole.Customer))
+            var result = await _userManager.CreateAsync(user, signup.Password);
+            if (result.Succeeded)
             {
-                await _repo.CreateRoleAsync(ApplicationRole.Customer);
+                await AssignCustomerRoleAsync(user);
             }
 
-            // Thêm người dùng vào vai trò
-            await _repo.AddToRoleAsync(user, ApplicationRole.Customer);
-
-            return result; // Trả về kết quả thành công
+            return result;
         }
 
+        private async Task AssignCustomerRoleAsync(ApplicationUser user)
+        {
+            var roleExists = await _userManager.GetRolesAsync(user);
+            if (!roleExists.Contains(ApplicationRole.Customer))
+            {
+                await _userManager.AddToRoleAsync(user, ApplicationRole.Customer);
+            }
+        }
     }
 }

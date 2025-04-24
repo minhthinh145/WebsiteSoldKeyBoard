@@ -93,7 +93,9 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IHoaDonRepository, HoaDonRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
+
 //đăng ký scoped phần services
 builder.Services.AddScoped<IAccountService,AccountService>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -104,6 +106,7 @@ builder.Services.AddScoped<IOrderDetailsService, OrderDetailsService>();
 builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
 builder.Services.AddScoped<IHoaDonService, HoaDonService>();
 builder.Services.AddScoped<IVNPayService, VNPayServices>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 var app = builder.Build();  
 
 // Configure the HTTP request pipeline.
