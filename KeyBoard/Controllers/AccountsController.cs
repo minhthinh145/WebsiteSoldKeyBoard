@@ -1,7 +1,9 @@
 ﻿using KeyBoard.DTOs.AuthenDTOs;
 using Microsoft.AspNetCore.Mvc;
 using KeyBoard.Services.Interfaces;
-
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 namespace KeyBoard.Controllers
 {
     [Route("api/[controller]")]
@@ -10,21 +12,38 @@ namespace KeyBoard.Controllers
     {
         private readonly IAccountService _service;
 
-        public AccountsController(IAccountService service)
+        public AccountsController( IAccountService service)
         {
             _service = service;
         }
 
-        [HttpPost("SignUp")]
+        [HttpPost("signup")]
         public async Task<IActionResult> SignUp(SignUpDTO signup)
         {
-            var result = await _service.SignUpAsync(signup);
-            if (result.Succeeded)
+
+            if (!ModelState.IsValid)
             {
-                return Ok(result.Succeeded);
+                return BadRequest(ModelState);
             }
-            return StatusCode(500);
+
+            try
+            {
+                var result = await _service.SignUpAsync(signup);
+                if (result.Succeeded)
+                {
+                    return Ok(result.Succeeded);
+                }
+                else
+                {
+                    return StatusCode(500, result.Errors);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi nội bộ khi xử lý đăng ký.");
+            }
         }
+
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignIn(SignInDTO signin)
         {
@@ -34,6 +53,20 @@ namespace KeyBoard.Controllers
                 return Unauthorized();
             }
             return Ok(token);
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _service.FindUserById(userID);
+
+            if(user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
         }
     }
 }

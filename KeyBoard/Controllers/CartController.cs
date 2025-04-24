@@ -28,7 +28,7 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xem giỏ hàng" });
             }
 
-            var listCartDTO = await _service.GetCartItemsAsync(userId);
+             var listCartDTO = await _service.GetCartItemsAsync(userId);
             return Ok(listCartDTO);
         }
 
@@ -44,7 +44,7 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng" });
             }
             cartDTO.UserId = userId;
-            var result = await _service.AddToCartAsync(cartDTO); // Gọi Service
+            var result = await _service.AddToCartAsync(cartDTO);
 
             if (!result)
             {

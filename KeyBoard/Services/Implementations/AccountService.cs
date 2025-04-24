@@ -1,4 +1,5 @@
-﻿using KeyBoard.Data;
+﻿using AutoMapper;
+using KeyBoard.Data;
 using KeyBoard.DTOs.AuthenDTOs;
 using KeyBoard.Helpers;
 using KeyBoard.Repositories.Interfaces;
@@ -15,12 +16,19 @@ namespace KeyBoard.Services.Implementations
     {
         private readonly IAccountRepository _repo;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-
-        public AccountService( IAccountRepository repo , IConfiguration configuration) 
+        public AccountService(IAccountRepository repo, IConfiguration configuration, IMapper mapper) 
         {
+            _mapper = mapper;
             _repo = repo;
             _configuration = configuration;
+        }
+
+        public async Task<UserProfileDTO> FindUserById(string userID)
+        {
+            var user = await _repo.FindByUserIDAsync(userID);
+            return user == null ? null : _mapper.Map<UserProfileDTO>(user);
         }
 
         public async Task<string> SignInAsync(SignInDTO signin)
@@ -35,7 +43,8 @@ namespace KeyBoard.Services.Implementations
             {
                 new Claim(ClaimTypes.Email, signin.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Token ID
-                new Claim("UserId", user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("Username", user.UserName)
             };
 
             //add role
@@ -62,22 +71,29 @@ namespace KeyBoard.Services.Implementations
         {
             var user = new ApplicationUser
             {
-                UserName = signup.Email,
                 Email = signup.Email,
-                FirstName = signup.FirstName,
-                LastName = signup.LastName
+                UserName = signup.Username,
+                FirstName = signup.Username,
+                LastName = signup.Username,
+                PhoneNumber = signup.PhoneNumber,
+
             };
+
+            // Tạo người dùng mới
             var result = await _repo.CreateUserAsync(user, signup.Password);
-            if(result.Succeeded)
+
+
+            // Nếu thành công, kiểm tra vai trò
+            if (!await _repo.RoleExistsAsync(ApplicationRole.Customer))
             {
-                if(!await _repo.RoleExistsAsync(ApplicationRole.Customer))
-                {
-                    await _repo.CreateRoleAsync(ApplicationRole.Customer);
-                }
-                await _repo.AddToRoleAsync(user, ApplicationRole.Customer);
+                await _repo.CreateRoleAsync(ApplicationRole.Customer);
             }
 
-            return result;
+            // Thêm người dùng vào vai trò
+            await _repo.AddToRoleAsync(user, ApplicationRole.Customer);
+
+            return result; // Trả về kết quả thành công
         }
+
     }
 }

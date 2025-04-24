@@ -22,5 +22,15 @@ namespace KeyBoard.Services.Interfaces
         /// Returns a JWT token as a string if successful, otherwise returns an empty string.
         /// </returns>
         Task<string> SignInAsync(SignInDTO signin);
+
+        /// <summary>
+        /// Find a user and return SignInDTO if successful
+        /// </summary>
+        /// <param name="userID">User id</param>
+        /// <returns>
+        /// Return SignInDTO of user
+        /// </returns>
+        /// 
+        Task<UserProfileDTO> FindUserById(string userID);
     }
 }

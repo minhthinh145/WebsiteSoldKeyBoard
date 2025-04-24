@@ -16,6 +16,14 @@ namespace KeyBoard.Repositories.Interfaces
         Task<ApplicationUser?> FindByEmailAsync(string email);
 
         /// <summary>
+        /// Find a user by UserID
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>
+        ///  Return ApplicationUser if find success , null if not
+        /// </returns>
+        Task<ApplicationUser?> FindByUserIDAsync(string userId);
+        /// <summary>
         /// Kiểm tra tính hợp lệ của mật khẩu người dùng.
         /// </summary>
         /// <param name="user">Đối tượng người dùng cần kiểm tra.</param>

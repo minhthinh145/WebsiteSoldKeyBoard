@@ -25,9 +25,9 @@ namespace KeyBoard.Repositories.Implementations
         {
                 return await _context.HoaDons
             .Where(hd => hd.UserId == userId)
-            .Include(hd => hd.ChiTietHoaDons) // Lấy chi tiết hóa đơn
-            .Include(hd => hd.MaTrangThaiNavigation) // Lấy trạng thái
-            .OrderByDescending(hd => hd.NgayDat) // Sắp xếp mới nhất lên trước
+            .Include(hd => hd.ChiTietHoaDons)
+            .Include(hd => hd.MaTrangThaiNavigation) 
+            .OrderByDescending(hd => hd.NgayDat) 
             .ToListAsync();
         }
 

@@ -46,6 +46,11 @@ namespace KeyBoard.Repositories.Implementations
            return await _userManager.FindByEmailAsync(email);
         }
 
+        public async Task<ApplicationUser?> FindByUserIDAsync(string userId)
+        {
+            return await _userManager.FindByIdAsync(userId);
+        }
+
         public async Task<IList<string>> GetUserRolesAsync(ApplicationUser user)
         {
             return await _userManager.GetRolesAsync(user);

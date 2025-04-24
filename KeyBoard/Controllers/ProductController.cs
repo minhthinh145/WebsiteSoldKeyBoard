@@ -19,7 +19,7 @@ namespace KeyBoard.Controllers
 
         //Get List of item
         [HttpGet]
-        [Authorize(Roles = ApplicationRole.Customer)]
+       // [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetAll()
         {
             var products = await _service.GetAllProductsAsync();
@@ -28,7 +28,7 @@ namespace KeyBoard.Controllers
 
         //Get by id
         [HttpGet("{id}")]
-        [Authorize(Roles = ApplicationRole.Customer)]
+       // [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetById(Guid id) 
         {
            var product = await _service.GetProductByIdAsync(id);
@@ -41,7 +41,7 @@ namespace KeyBoard.Controllers
 
         //Create a product
         [HttpPost]
-        [Authorize(Roles = ApplicationRole.Admin)]
+       // [Authorize(Roles = ApplicationRole.Admin)]
         public async Task<IActionResult> CreateNewProduct([FromBody] ProductDTO productDTO)
         {
             if (productDTO == null || !ModelState.IsValid)
@@ -67,7 +67,7 @@ namespace KeyBoard.Controllers
         }
         //Update a product
         [HttpPut("{id}")]
-        [Authorize(Roles = ApplicationRole.Admin)]
+        //[Authorize(Roles = ApplicationRole.Admin)]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductDTO productDTO)
         {
             if (productDTO == null || !ModelState.IsValid)
@@ -93,7 +93,7 @@ namespace KeyBoard.Controllers
 
         //Delete a product
         [HttpDelete("{id}")]
-        [Authorize(Roles = ApplicationRole.Admin)]
+        //[Authorize(Roles = ApplicationRole.Admin)]
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
         {
             try
@@ -106,7 +106,5 @@ namespace KeyBoard.Controllers
                 return StatusCode(500, $"Lỗi server: {ex.Message}");
             }
         }
-
-
     }
 }

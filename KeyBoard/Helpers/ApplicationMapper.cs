@@ -2,6 +2,7 @@
 using KeyBoard.DTOs;
 using AutoMapper;
 using KeyBoard.DTOs.HoaDonsDTOs;
+using KeyBoard.DTOs.AuthenDTOs;
 namespace KeyBoard.Helpers
 {
     public class ApplicationMapper : Profile
@@ -25,6 +26,7 @@ namespace KeyBoard.Helpers
             CreateMap<OrderDetailDTO, OrderDetail>().ReverseMap();
             CreateMap<HoaDon, HoaDonDTO>().ReverseMap();
             CreateMap<ChiTietHoaDon, ChiTietHoaDonDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserProfileDTO>().ReverseMap();
         }
     }
 }
