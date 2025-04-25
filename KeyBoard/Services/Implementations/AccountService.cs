@@ -36,7 +36,7 @@ namespace KeyBoard.Services.Implementations
             var user = await _userManager.FindByEmailAsync(signin.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, signin.Password))
             {
-                return null; // Hoặc throw exception tùy yêu cầu
+                return null;
             }
 
             var (accessToken, refreshToken) = await _authService.GenerateTokensAsync(user);

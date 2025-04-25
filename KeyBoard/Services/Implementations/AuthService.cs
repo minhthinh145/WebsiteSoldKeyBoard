@@ -73,8 +73,8 @@ namespace KeyBoard.Services.Implementations
         public async Task<(string AccessToken, string RefreshToken)> GenerateTokensAsync(ApplicationUser user)
         {
             var accessToken = await GenerateAccessTokenForUserAsync(user);
-            var refreshToken = Guid.NewGuid().ToString(); // Có thể thay bằng thuật toán an toàn hơn
-            var expires = DateTime.UtcNow.AddDays(7); // Refresh token hết hạn sau 7 ngày
+            var refreshToken = Guid.NewGuid().ToString(); 
+            var expires = DateTime.UtcNow.AddDays(7); 
 
             await SaveRefreshTokenAsync(user.Id, refreshToken, expires);
 

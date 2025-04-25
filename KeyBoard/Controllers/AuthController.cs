@@ -82,10 +82,9 @@ namespace KeyBoard.Controllers
         }
 
         [HttpGet("profile")]
-        [Authorize] // Yêu cầu access token hợp lệ
+        [Authorize] 
         public async Task<IActionResult> GetProfile()
         {
-            // Lấy UserId từ access token (claim "nameidentifier")
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
@@ -102,8 +101,5 @@ namespace KeyBoard.Controllers
         }
     }
 
-    public class RefreshTokenRequestDTO
-    {
-        public string RefreshToken { get; set; }
-    }
+  
 }
