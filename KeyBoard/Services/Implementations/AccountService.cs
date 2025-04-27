@@ -54,6 +54,7 @@ namespace KeyBoard.Services.Implementations
                 Email = signup.Email,
                 UserName = signup.Username,
                 PhoneNumber = signup.PhoneNumber,
+                DateOfBirth = signup.DateOfBirth,
             };
 
             var result = await _userManager.CreateAsync(user, signup.Password);
