@@ -16,22 +16,32 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddLogging(logging =>
+{
+    logging.ClearProviders(); // Xóa các provider mặc định để tránh nhiễu
+    logging.AddConsole(); // Thêm console logger
+    logging.AddDebug();   // Thêm debug logger (hiển thị trong Visual Studio Output)
+    logging.SetMinimumLevel(LogLevel.Information); // Đảm bảo log mức Information được hiển thị
+});
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(option => {
+builder.Services.AddSwaggerGen(option =>
+{
+
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "KeyBoard API", Version = "v1" });
+
+    // Định nghĩa security cho OpenAPI 2.0
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey // OpenAPI 2.0 yêu cầu type này
     });
+
+
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -39,16 +49,25 @@ builder.Services.AddSwaggerGen(option => {
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
             },
-            new string[]{}
+            new string[] { }
         }
     });
+
 });
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-// Đăng ký DbContext
+var environment = builder.Environment;
+/*
+ var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+ */
+var connectionString = environment.IsDevelopment()
+    ? builder.Configuration.GetConnectionString("DefaultConnection")
+    : builder.Configuration.GetConnectionString("DatabaseConnection");
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -76,15 +95,18 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")  // Thêm cổng frontend của bạn
+        policy.AllowAnyOrigin()  // Cho phép tất cả các nguồn
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
+
 
 
 builder.Services.AddAutoMapper(typeof(Program));
@@ -110,14 +132,32 @@ builder.Services.AddScoped<IChiTietHoaDonService, ChiTietHoaDonService>();
 builder.Services.AddScoped<IHoaDonService, HoaDonService>();
 builder.Services.AddScoped<IVNPayService, VNPayServices>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-var app = builder.Build();  
+builder.Services.AddScoped<IFirebaseStorageService, FirebaseStorageService>();
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseExceptionHandler(errorApp =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    errorApp.Run(async context =>
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        if (exceptionHandlerPathFeature?.Error != null)
+        {
+            logger.LogError(exceptionHandlerPathFeature.Error, "An unhandled exception occurred.");
+        }
+
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("An unexpected error occurred. Please try again later.");
+    });
+});
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "KeyBoard API V1");
+    c.RoutePrefix = "swagger"; // Đảm bảo đường dẫn là /swagger
+});
 app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
 app.UseAuthentication();
