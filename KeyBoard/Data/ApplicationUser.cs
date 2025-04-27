@@ -6,7 +6,7 @@ namespace KeyBoard.Data
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-
+        public DateTime? DateOfBirth { get; set; }
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
         public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
         public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();

@@ -26,7 +26,11 @@ namespace KeyBoard.Helpers
             CreateMap<OrderDetailDTO, OrderDetail>().ReverseMap();
             CreateMap<HoaDon, HoaDonDTO>().ReverseMap();
             CreateMap<ChiTietHoaDon, ChiTietHoaDonDTO>().ReverseMap();
-            CreateMap<ApplicationUser, UserProfileDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserProfileDTO>()
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber)) // Ánh xạ PhoneNumber -> Phone
+                .ReverseMap()
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone)); // Ánh xạ ngược Phone -> PhoneNumber
+                                                                                            
         }
     }
 }
