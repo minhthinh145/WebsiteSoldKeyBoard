@@ -45,3 +45,6 @@ publish/
 appsettings.json
 appsettings.*.json
 MyProject.Tests/
+
+
+firebase/

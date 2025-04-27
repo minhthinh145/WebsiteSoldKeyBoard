@@ -12,8 +12,13 @@ namespace KeyBoard.DTOs.AuthenDTOs
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
         [Required]
         public string PhoneNumber { get; set; }
+
+        [Required]
+        public DateTime? DateOfBirth {  get; set; }
+
         [Required]
         public string Password { get; set; } = string.Empty;
+
   
         [Required]
         public string ConfirmPassword {  get; set; } = string.Empty;
