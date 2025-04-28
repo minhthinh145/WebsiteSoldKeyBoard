@@ -82,7 +82,7 @@ namespace KeyBoard.Controllers
         }
 
         [HttpGet("profile")]
-        [Authorize] 
+        [Authorize]
         public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -99,7 +99,21 @@ namespace KeyBoard.Controllers
 
             return Ok(userProfile);
         }
-    }
 
-  
+        [HttpPatch("update")]
+        public async Task<IActionResult> UpdateUser([FromBody] UserProfileDTO user)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new { message = "Invalid token." });
+            }
+            var userUpdate = await _accountService.UpdateUserById(userId, user);
+            if (userUpdate == null)
+            {
+                return BadRequest(new { message = "Cannot update user" });
+            }
+            return Ok(new { message = "Cập nhật thông tin thành công" }); // Trả về thông báo thay vì DTO        
+        }
+    }
 }
