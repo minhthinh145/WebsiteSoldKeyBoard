@@ -67,6 +67,22 @@ namespace KeyBoard.Services.Implementations
             return result;
         }
 
+        public async Task<UserProfileDTO> UpdateUserById(string userId ,UserProfileDTO user)
+        {
+            var userApp = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (userApp == null)
+            {
+                return null;
+            }
+            _mapper.Map(user, userApp);
+
+            var result = await _userManager.UpdateAsync(userApp);
+
+            return user;
+            
+        }
+
         private async Task AssignCustomerRoleAsync(ApplicationUser user)
         {
             var roleExists = await _userManager.GetRolesAsync(user);

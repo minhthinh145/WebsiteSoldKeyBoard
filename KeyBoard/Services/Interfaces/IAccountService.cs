@@ -34,5 +34,7 @@ namespace KeyBoard.Services.Interfaces
         /// Return SignInDTO of user
         /// </returns> 
         Task<UserProfileDTO> FindUserById(string userID);
+
+        Task<UserProfileDTO> UpdateUserById(string userid,UserProfileDTO user);
     }
 }
