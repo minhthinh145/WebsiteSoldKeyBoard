@@ -28,9 +28,11 @@ namespace KeyBoard.Helpers
             CreateMap<ChiTietHoaDon, ChiTietHoaDonDTO>().ReverseMap();
             CreateMap<ApplicationUser, UserProfileDTO>()
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber)) // Ánh xạ PhoneNumber -> Phone
+                .ForMember(dest => dest.BirthDate, opt => opt.MapFrom(src => src.DateOfBirth))
                 .ReverseMap()
-                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone)); // Ánh xạ ngược Phone -> PhoneNumber
-                                                                                            
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.BirthDate));
+
         }
     }
 }
