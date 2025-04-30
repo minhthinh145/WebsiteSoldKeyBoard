@@ -1,5 +1,4 @@
-﻿// KeyBoard.Controllers/AuthController.cs
-using KeyBoard.DTOs.AuthenDTOs;
+﻿using KeyBoard.DTOs.AuthenDTOs;
 using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -85,19 +84,27 @@ namespace KeyBoard.Controllers
         [Authorize]
         public async Task<IActionResult> GetProfile()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
+            try
             {
-                return Unauthorized(new { message = "Invalid token." });
-            }
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "Invalid token." });
+                }
 
-            var userProfile = await _accountService.FindUserById(userId);
-            if (userProfile == null)
+                var userProfile = await _accountService.FindUserById(userId);
+                if (userProfile == null)
+                {
+                    return NotFound(new { message = "User not found." });
+                }
+
+                return Ok(userProfile);
+            }
+            catch (Exception ex)
             {
-                return NotFound(new { message = "User not found." });
+      
+                return StatusCode(500, new { message = "An error occurred while retrieving the profile.", error = ex.Message });
             }
-
-            return Ok(userProfile);
         }
 
         [HttpPatch("update")]
@@ -112,8 +119,8 @@ namespace KeyBoard.Controllers
             if (userUpdate == null)
             {
                 return BadRequest(new { message = "Cannot update user" });
-            }
-            return Ok(new { message = "Cập nhật thông tin thành công" }); // Trả về thông báo thay vì DTO        
+            }   
+            return Ok(new { message = "Cập nhật thông tin thành công" }); // Trả về thông báo cho frontend     
         }
     }
 }
