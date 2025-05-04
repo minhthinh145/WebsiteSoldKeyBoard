@@ -3,6 +3,8 @@ using Google.Apis.Auth.OAuth2;
 using KeyBoard.Data;
 using KeyBoard.Repositories.Implementations;
 using KeyBoard.Repositories.Interfaces;
+using KeyBoard.Services.ExternalServices.Implementation;
+using KeyBoard.Services.ExternalServices.Interface;
 using KeyBoard.Services.FirebaseService;
 using KeyBoard.Services.Implementations;
 using KeyBoard.Services.Interfaces;
@@ -72,9 +74,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 //Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredUniqueChars = 1;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();  
 
 //authentication
 builder.Services.AddAuthentication(options => {
@@ -120,6 +130,7 @@ builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IHoaDonRepository, HoaDonRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IChiTietHoaDonRepository, ChiTietHoaDonRepository>();
+builder.Services.AddScoped<IUserOtpRepository, UserOtpRepository>();
 
 //đăng ký scoped phần services
 builder.Services.AddScoped<IAccountService,AccountService>();
@@ -134,6 +145,11 @@ builder.Services.AddScoped<IVNPayService, VNPayServices>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFirebaseStorageService, FirebaseStorageService>();
 
+builder.Services.AddScoped<ISendEmailService, SendEmailService>();
+builder.Services.AddScoped<ISendSmsService, SendSmsService>();
+//Scoped Service Auth
+builder.Services.AddScoped<IUserOtpService, UserOtpService>();
+builder.Services.AddScoped<IChangePasswordService, ChangePasswordService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
