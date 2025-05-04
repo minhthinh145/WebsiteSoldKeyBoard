@@ -30,6 +30,7 @@ namespace KeyBoard.Services.Implementations
         {
             var user = await _userManager.FindByIdAsync(userID);
             return user == null ? null : _mapper.Map<UserProfileDTO>(user);
+            
         }
 
         public async Task<TokenResponseDTO> SignInAsync(SignInDTO signin)
