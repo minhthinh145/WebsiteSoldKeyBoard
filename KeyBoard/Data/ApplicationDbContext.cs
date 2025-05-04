@@ -34,6 +34,7 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<TrangThai> TrangThais { get; set; }
 
+    public DbSet<UserOTP> UserOtps { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
