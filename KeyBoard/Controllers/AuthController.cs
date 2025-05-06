@@ -28,7 +28,7 @@ namespace KeyBoard.Controllers
             if (result == null)
             {
                 return Unauthorized(new { message = "Invalid email or password." });
-            }
+            }   
 
             return Ok(result);
         }
@@ -102,7 +102,7 @@ namespace KeyBoard.Controllers
             }
             catch (Exception ex)
             {
-      
+
                 return StatusCode(500, new { message = "An error occurred while retrieving the profile.", error = ex.Message });
             }
         }
@@ -119,8 +119,23 @@ namespace KeyBoard.Controllers
             if (userUpdate == null)
             {
                 return BadRequest(new { message = "Cannot update user" });
-            }   
+            }
             return Ok(new { message = "Cập nhật thông tin thành công" }); // Trả về thông báo cho frontend     
+        }
+        [HttpPost("checkpassword")]
+        public async Task<IActionResult> CheckPasswordUser([FromBody] string password)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new { message = "Invalid token." });
+            }
+            var result = await _accountService.CheckPasswordAsync(userId, password);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }
