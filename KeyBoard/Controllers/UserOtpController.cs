@@ -16,16 +16,16 @@ namespace KeyBoard.Controllers
             _userOtpService = userOtpService;
         }
         [HttpPost("request")]
-        public async Task<IActionResult> RequestOtp([FromBody] RequestOtpDTO requestDTO)
+        public async Task<IActionResult> RequestOtp()
         {
             //claim
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             if(userId == null)
             {
                 return BadRequest("Không tìm thấy User");
             }
-            requestDTO.UserId = userId;
-            var result = await _userOtpService.GenerateOtpAsync(requestDTO.UserId, requestDTO.Method.ToString());
+            var result = await _userOtpService.GenerateOtpAsync(userId);
             if (!result)
             {
                 return BadRequest("Gửi mã OTP không thành công");
@@ -40,8 +40,7 @@ namespace KeyBoard.Controllers
             {
                 return BadRequest("Không tìm thấy User");
             }
-            verifyOtpDTO.UserId = userId;
-            var result = await _userOtpService.VerifyOtpAsync(verifyOtpDTO.UserId, verifyOtpDTO.OtpCode);
+            var result = await _userOtpService.VerifyOtpAsync(userId, verifyOtpDTO.OtpCode);
             if (!result)
             {
                 return BadRequest("Mã OTP không hợp lệ hoặc đã hết hạn");
