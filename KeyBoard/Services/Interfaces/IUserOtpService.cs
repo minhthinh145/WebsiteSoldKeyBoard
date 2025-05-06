@@ -7,7 +7,7 @@
         /// </summary>
         /// <param name="userId">The user ID for which the OTP will be generated</param>
         /// <returns>A Task containing the result of the OTP generation process.</returns>
-        Task<bool> GenerateOtpAsync(string userId, string method);
+        Task<bool> GenerateOtpAsync(string userId);
 
         /// <summary>
         /// Verifies the OTP entered by the user.

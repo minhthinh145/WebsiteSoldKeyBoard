@@ -30,14 +30,11 @@ namespace KeyBoard.Services.Implementations
             _userManager = userManager;
         }
 
-        public async Task<bool> GenerateOtpAsync(string userId , string method)
+        public async Task<bool> GenerateOtpAsync(string userId )
         {
             try
             {
-                if (method != "Email" && method != "Phone")
-                {
-                    return false; // Phương thức không hợp lệ
-                }
+              
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
                 {
@@ -52,23 +49,30 @@ namespace KeyBoard.Services.Implementations
                 var userOtp = _mapper.Map<UserOTP>(otpDTO);
 
                 await _userOtpRepository.CreateOTPAsync(userOtp);
-
-                if (method == "Email")
+                //warning : SMS is not alvailable now]
+                /*
+                 if (method == "Email")
+                 {
+                     if (string.IsNullOrEmpty(user.Email))
+                     {
+                         return false; 
+                     }
+                     await _sendEmailService.SendOtpEmailAsync(user.Email, otpCode);
+                 }
+                 else // method == "Phone"
+                 {
+                     if (string.IsNullOrEmpty(user.PhoneNumber))
+                     {
+                         return false; // Số điện thoại không tồn tại
+                     }
+                     await _sendSmsService.SendOtpSmsAsync(user.PhoneNumber, otpCode);
+                 }
+                 */
+                if (string.IsNullOrEmpty(user.Email))
                 {
-                    if (string.IsNullOrEmpty(user.Email))
-                    {
-                        return false; 
-                    }
-                    await _sendEmailService.SendOtpEmailAsync(user.Email, otpCode);
+                    return false;
                 }
-                else // method == "Phone"
-                {
-                    if (string.IsNullOrEmpty(user.PhoneNumber))
-                    {
-                        return false; // Số điện thoại không tồn tại
-                    }
-                    await _sendSmsService.SendOtpSmsAsync(user.PhoneNumber, otpCode);
-                }
+                await _sendEmailService.SendOtpEmailAsync(user.Email, otpCode);
                 return true;
             }
             catch (Exception)
