@@ -26,6 +26,23 @@ namespace KeyBoard.Services.Implementations
             _authService = authService;
         }
 
+        public async Task<ServiceResult> CheckPasswordAsync(string userId, string password)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null) return ServiceResult.Failure("Không tìm thấy người dùng với ID đã cho"); ;
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
+            if (isPasswordValid)
+            {
+                return ServiceResult.Success("Mật khẩu đúng");
+            }
+            else
+            {
+                return ServiceResult.Failure("Mật khẩu không đúng");
+            }
+        }
+
+
         public async Task<UserProfileDTO> FindUserById(string userID)
         {
             var user = await _userManager.FindByIdAsync(userID);
@@ -36,7 +53,8 @@ namespace KeyBoard.Services.Implementations
         public async Task<TokenResponseDTO> SignInAsync(SignInDTO signin)
         {
             var user = await _userManager.FindByEmailAsync(signin.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, signin.Password))
+            if (user == null || !(await _userManager.CheckPasswordAsync(user, signin.Password))
+)
             {
                 return null;
             }

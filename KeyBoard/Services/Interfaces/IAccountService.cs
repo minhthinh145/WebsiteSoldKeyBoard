@@ -1,4 +1,5 @@
 ﻿using KeyBoard.DTOs.AuthenDTOs;
+using KeyBoard.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Identity.Client;
 
@@ -35,6 +36,23 @@ namespace KeyBoard.Services.Interfaces
         /// </returns> 
         Task<UserProfileDTO> FindUserById(string userID);
 
+        /// <summary>
+        /// Update a user 
+        /// </summary>
+        /// <param name="userid">User id</param>
+        /// <param name="user">Userprofile DTO</param>
+        /// <returns>
+        /// Return UserProfileDTO
+        /// </returns>
         Task<UserProfileDTO> UpdateUserById(string userid,UserProfileDTO user);
+
+        /// <summary>
+        /// Check if a password is correct for a specific user.
+        /// </summary>
+        /// <param name="userId">ID of the user</param>
+        /// <param name="password">Password to verify</param>
+        /// <returns>True if correct, false otherwise</returns>
+        Task<ServiceResult> CheckPasswordAsync(string userId, string password);
+
     }
 }
