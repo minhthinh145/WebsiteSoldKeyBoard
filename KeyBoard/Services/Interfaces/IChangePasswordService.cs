@@ -17,6 +17,6 @@ namespace KeyBoard.Services.Interfaces
         /// </summary>
         /// <param name="verifyOtpAndChangePasswordDTO">Data including UserId , OTP code and newPassword </param>
         /// <returns>A confirm message or an error message if applicable </returns>
-        Task<ServiceResult> ConfirmChangePasswordAsync(ConfirmChangePasswordDTO ConfirmChangePasswordDTO);
+        Task<ServiceResult> ConfirmChangePasswordAsync(string userId,ConfirmChangePasswordDTO ConfirmChangePasswordDTO);
     }
 }

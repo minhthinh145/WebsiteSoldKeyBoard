@@ -18,7 +18,7 @@ namespace KeyBoard.Controllers
         }
 
         //get cart
-        [HttpGet]
+        [HttpGet("getCart")]
         [Authorize]
         public async Task<IActionResult> GetCart()
         {

@@ -18,9 +18,9 @@ namespace KeyBoard.Services.Implementations
             _passwordValidator = passwordValidator;
             _OtpService = otpService;
         }
-        public async Task<ServiceResult> ConfirmChangePasswordAsync(ConfirmChangePasswordDTO ConfirmChangePasswordDTO)
+        public async Task<ServiceResult> ConfirmChangePasswordAsync(string userId, ConfirmChangePasswordDTO ConfirmChangePasswordDTO)
         {
-           var user = await _userManager.FindByIdAsync(ConfirmChangePasswordDTO.UserId);
+           var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return ServiceResult.Failure("Không tìm thấy User");
@@ -39,7 +39,7 @@ namespace KeyBoard.Services.Implementations
                 return ServiceResult.Failure($"Đổi mật khẩu không thành công: {errors}");
             }
             //mark otp is used
-            var otpResult = await _OtpService.MarkOtpAsUsedAsync(ConfirmChangePasswordDTO.UserId,ConfirmChangePasswordDTO.OtpCode);
+            var otpResult = await _OtpService.MarkOtpAsUsedAsync(userId, ConfirmChangePasswordDTO.OtpCode);
             if (!otpResult)
             {
                 return ServiceResult.Failure("Mã OTP không hợp lệ hoặc đã được sử dụng");
@@ -58,7 +58,6 @@ namespace KeyBoard.Services.Implementations
             {
                 return ServiceResult.Failure("Mật khẩu không khớp, vui lòng nhập lại!");
             }
-
             return ServiceResult.Success("Vui lòng chọn phương thức gửi mã OTP");
         }
     }

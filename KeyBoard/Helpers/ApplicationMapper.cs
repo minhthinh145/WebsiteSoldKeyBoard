@@ -41,7 +41,6 @@ namespace KeyBoard.Helpers
                 .ForMember(dest => dest.User, opt => opt.Ignore()); // Bỏ qua navigation property
 
             CreateMap<RequestOtpDTO, CreateUserOtpDTO>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.OtpCode, opt => opt.Ignore()) // OtpCode sẽ được tạo bởi backend
                 .ForMember(dest => dest.ExpirationTime, opt => opt.Ignore()); // ExpirationTime sẽ được tạo bởi backend
 
