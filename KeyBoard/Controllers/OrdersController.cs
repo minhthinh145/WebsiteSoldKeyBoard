@@ -3,6 +3,7 @@ using KeyBoard.Helpers;
 using KeyBoard.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KeyBoard.Controllers
 {
@@ -98,11 +99,11 @@ namespace KeyBoard.Controllers
             }
         }
         //create ORders from carts
-        [HttpPost("create-from-cart")]
-        [Authorize(Roles = ApplicationRole.Customer)]
+        [HttpPost("createorder")]
+        [Authorize]
         public async Task<IActionResult> CreateOrderFromCart() 
         {
-            var userId = User.FindFirst("UserId")?.Value;
+            var userId = GetUserIdByToken();
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized(new { message = "User is not authenticated" });
@@ -112,5 +113,10 @@ namespace KeyBoard.Controllers
             return Ok(order);
         }
 
+        private string GetUserIdByToken()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
     }
 }

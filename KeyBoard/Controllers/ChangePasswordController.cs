@@ -23,7 +23,7 @@ namespace KeyBoard.Controllers
         {
             //use claim
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if(userId == null)
+            if (userId == null)
             {
                 return BadRequest("Có lỗi xảy ra");
             }
@@ -33,7 +33,7 @@ namespace KeyBoard.Controllers
             {
                 return BadRequest(result.Message);
             }
-            return Ok(result); 
+            return Ok(result);
         }
         [HttpPost("confirm")]
         public async Task<IActionResult> ConfirmChangePassword([FromBody] ConfirmChangePasswordDTO requestDTO)
@@ -44,7 +44,7 @@ namespace KeyBoard.Controllers
             {
                 return BadRequest("Có lỗi xảy ra");
             }
-            var result = await _service.ConfirmChangePasswordAsync(userId,requestDTO);
+            var result = await _service.ConfirmChangePasswordAsync(userId, requestDTO);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Message);

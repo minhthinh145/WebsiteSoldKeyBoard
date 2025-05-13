@@ -22,49 +22,47 @@ namespace KeyBoard.Controllers
         [Authorize]
         public async Task<IActionResult> GetCart()
         {
-            var userId = User.FindFirstValue("UserId");
+            var userId = GetUserIdFromToken();
             if (userId == null)
             {
                 return Unauthorized(new { message = "Bạn cần đăng nhập để xem giỏ hàng" });
             }
 
-             var listCartDTO = await _service.GetCartItemsAsync(userId);
-            return Ok(listCartDTO);
+             var CartDTO = await _service.GetCartItemsAsync(userId);
+            return Ok(CartDTO);
         }
 
 
         //add 
-        [HttpPost]
+        [HttpPost("add")]
         [Authorize]
-        public async Task<IActionResult> AddToCart([FromBody] CartItemDTO cartDTO)
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartDTO cartDTO)
         {
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null)
+            var userId = GetUserIdFromToken();
+            if (userId == null) 
             {
                 return Unauthorized(new { message = "Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng" });
             }
-            cartDTO.UserId = userId;
-            var result = await _service.AddToCartAsync(cartDTO);
+            var result = await _service.AddToCartAsync(userId,cartDTO);
 
-            if (!result)
+            if (!result.IsSuccess)
             {
-                return BadRequest(new { message = "Không thể thêm sản phẩm vào giỏ hàng" });
+                return BadRequest(result.Message);
             }
-            return Ok(new { message = "Sản phẩm đã được thêm vào giỏ hàng" });
+            return Ok(result);
         }
 
         //update
-        [HttpPut]
+        [HttpPut("update")]
         [Authorize]
         public async Task<IActionResult> UpdateCart([FromBody] CartItemDTO cartDTO)
         {
-            var userId = User.FindFirstValue("UserId");
+            var userId = GetUserIdFromToken();
             if (userId == null)
             {
                 return Unauthorized(new { message = "Bạn cần đăng nhập để cập nhật giỏ hàng" });
             }
-            cartDTO.UserId = userId;
-            var result = await _service.UpdateCartAsync(cartDTO);
+            var result = await _service.UpdateCartAsync(cartDTO,userId);
             if (!result) 
             {
                 return BadRequest(new { message = "Không thể cập nhật giỏ hàng" });
@@ -113,8 +111,8 @@ namespace KeyBoard.Controllers
         }
         private string? GetUserIdFromToken()
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            return userIdClaim != null ? userIdClaim.ToString() : null;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId != null ? userId : null;
         }
 
 
