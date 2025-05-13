@@ -44,9 +44,9 @@ namespace KeyBoard.Services.Implementations
 
             var authClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName!),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Email, user.Email!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -56,7 +56,7 @@ namespace KeyBoard.Services.Implementations
                 authClaims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var authKey = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
+            var authKey = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(authClaims),

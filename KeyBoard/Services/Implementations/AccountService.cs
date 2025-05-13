@@ -8,20 +8,19 @@ using System.Threading.Tasks;
 using AutoMapper;
 using KeyBoard.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace KeyBoard.Services.Implementations
 {
     public class AccountService : IAccountService
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly IAuthService _authService;
 
-        public AccountService(UserManager<ApplicationUser> userManager, IConfiguration configuration, IMapper mapper, IAuthService authService)
+        public AccountService(UserManager<ApplicationUser> userManager, IMapper mapper, IAuthService authService)
         {
             _userManager = userManager;
-            _configuration = configuration;
             _mapper = mapper;
             _authService = authService;
         }
@@ -46,7 +45,9 @@ namespace KeyBoard.Services.Implementations
         public async Task<UserProfileDTO> FindUserById(string userID)
         {
             var user = await _userManager.FindByIdAsync(userID);
-            return user == null ? null : _mapper.Map<UserProfileDTO>(user);
+            if (user == null) return null!;
+
+            return  _mapper.Map<UserProfileDTO>(user);
             
         }
 
@@ -56,7 +57,7 @@ namespace KeyBoard.Services.Implementations
             if (user == null || !(await _userManager.CheckPasswordAsync(user, signin.Password))
 )
             {
-                return null;
+                return null!;
             }
 
             var (accessToken, refreshToken) = await _authService.GenerateTokensAsync(user);
@@ -92,7 +93,7 @@ namespace KeyBoard.Services.Implementations
 
             if (userApp == null)
             {
-                return null;
+                return null!;
             }
             _mapper.Map(user, userApp);
 

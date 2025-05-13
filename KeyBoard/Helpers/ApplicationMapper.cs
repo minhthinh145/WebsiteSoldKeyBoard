@@ -11,11 +11,14 @@ namespace KeyBoard.Helpers
         {
             CreateMap<Product, ProductDTO>();
             CreateMap<ProductDTO, Product>();
-            CreateMap<Cart, CartItemDTO>()
-          .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price))
-             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
+
+            //Cart
+            CreateMap<Cart, AddToCartDTO>().ReverseMap();
+            CreateMap<Cart, CartItemDTO>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price))
+            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Product.ImageUrl));
             CreateMap<CartItemDTO, Cart>(); 
             CreateMap<Category, CategoryDTO>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt ?? DateTime.UtcNow)); 
