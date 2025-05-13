@@ -2,7 +2,6 @@
 {
     public class CartItemDTO
     {
-        public string UserId { get; set; }
         public Guid ProductId { get; set; }
         public string ProductName { get; set; } = null!;
         public decimal Price { get; set; }
