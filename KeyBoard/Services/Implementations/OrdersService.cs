@@ -65,11 +65,13 @@ namespace KeyBoard.Services.Implementations
             {
                 throw new UnauthorizedAccessException("User is not authenticated");
             }
+
             var cartItems = await _cart.GetCartItemsAsync(userId);
-            if (cartItems == null || !cartItems.Any())
+            if (cartItems == null || !cartItems.Items.Any())
             {
                 throw new InvalidOperationException("Your cart is empty");
             }
+
             var newOrder = new Order
             {
                 Id = Guid.NewGuid(),
@@ -79,15 +81,22 @@ namespace KeyBoard.Services.Implementations
                 OrderDetails = new List<OrderDetail>(),
                 TotalAmount = 0
             };
-            foreach (var cartItem in cartItems) 
+
+            foreach (var cartItem in cartItems.Items)
             {
                 var product = await _product.GetProductByIdAsync(cartItem.ProductId);
-                if (product == null) 
+                if (product == null)
                 {
                     throw new KeyNotFoundException($"Product {cartItem.ProductId} not found.");
                 }
 
-                var orderDetail = new OrderDetail { 
+                if (cartItem.Quantity <= 0)
+                {
+                    throw new ArgumentException($"Quantity for product {cartItem.ProductId} is invalid.");
+                }
+
+                var orderDetail = new OrderDetail
+                {
                     Id = Guid.NewGuid(),
                     OrderId = newOrder.Id,
                     ProductId = product.Id,
@@ -98,11 +107,18 @@ namespace KeyBoard.Services.Implementations
                 newOrder.OrderDetails.Add(orderDetail);
                 newOrder.TotalAmount += orderDetail.UnitPrice * orderDetail.Quantity;
             }
-            
-            await _repo.CreateOrderAsync(newOrder);
+
+            decimal shippingFee = 16000; 
+            newOrder.TotalAmount += shippingFee;
+
+            var createOrder = await _repo.CreateOrderAsync(newOrder);
+            //if success, delete cart
+            if(createOrder != null)
+            {
+                await _cart.ClearCartAsync(userId);
+            }
             return _mapper.Map<OrderDTO>(newOrder);
         }
-
         public async Task<List<OrderDTO>> GetAllOrdersAsync()
         {
             var orders = await _repo.GetAllOrdersAsync();

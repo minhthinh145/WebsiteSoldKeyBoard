@@ -20,10 +20,36 @@ namespace KeyBoard.Repositories.Implementations
                 throw new ArgumentNullException(nameof(order), "Order cannot be null.");
             }
 
+            if (order.OrderDetails == null || !order.OrderDetails.Any())
+            {
+                throw new InvalidOperationException("Order must have at least one order detail.");
+            }
+
+            foreach (var detail in order.OrderDetails)
+            {
+                if (detail.ProductId == Guid.Empty || detail.Quantity <= 0 || detail.UnitPrice < 0)
+                {
+                    throw new ArgumentException("Invalid order detail data.");
+                }
+            }
+
             order.Id = Guid.NewGuid();
             order.CreatedAt = DateTime.UtcNow;
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    _context.Orders.Add(order);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new InvalidOperationException("Failed to create order: " + ex.Message, ex);
+                }
+            }
 
             return order;
         }
