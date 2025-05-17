@@ -27,8 +27,8 @@ namespace KeyBoard.Helpers
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
             CreateMap<OrderDTO, Order>().ReverseMap();
             CreateMap<OrderDetailDTO, OrderDetail>().ReverseMap();
-            CreateMap<HoaDon, HoaDonDTO>().ReverseMap();
-            CreateMap<ChiTietHoaDon, ChiTietHoaDonDTO>().ReverseMap();
+            CreateMap<Bill, HoaDonDTO>().ReverseMap();
+            CreateMap<BillDetails, ChiTietHoaDonDTO>().ReverseMap();
             CreateMap<ApplicationUser, UserProfileDTO>()
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber)) // Ánh xạ PhoneNumber -> Phone
                 .ForMember(dest => dest.BirthDate, opt => opt.MapFrom(src => src.DateOfBirth))

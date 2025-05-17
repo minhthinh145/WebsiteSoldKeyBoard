@@ -5,6 +5,7 @@ using KeyBoard.Helpers;
 using KeyBoard.Repositories.Interfaces;
 using KeyBoard.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Web.Http;
 
 namespace KeyBoard.Services.Implementations
 {
@@ -15,7 +16,7 @@ namespace KeyBoard.Services.Implementations
         private readonly ICartService _cart;
         private readonly IProductService _product;
 
-        public OrdersService(IOrderRepository repo, ICartService cart, IProductService product ,IMapper mapper)
+        public OrdersService(IOrderRepository repo, ICartService cart, IProductService product, IMapper mapper)
         {
             _repo = repo;
             _mapper = mapper;
@@ -34,7 +35,7 @@ namespace KeyBoard.Services.Implementations
             order.Id = Guid.NewGuid();
             order.UserId = userId;
             order.CreatedAt = DateTime.UtcNow;
-            order.OrderStatus = StattusPayment.Pending; 
+            order.OrderStatus = StattusPayment.Pending;
             order.TotalAmount = 0;
 
             // Tính tổng tiền
@@ -108,12 +109,12 @@ namespace KeyBoard.Services.Implementations
                 newOrder.TotalAmount += orderDetail.UnitPrice * orderDetail.Quantity;
             }
 
-            decimal shippingFee = 16000; 
+            decimal shippingFee = 16000;
             newOrder.TotalAmount += shippingFee;
 
             var createOrder = await _repo.CreateOrderAsync(newOrder);
             //if success, delete cart
-            if(createOrder != null)
+            if (createOrder != null)
             {
                 await _cart.ClearCartAsync(userId);
             }
@@ -122,27 +123,32 @@ namespace KeyBoard.Services.Implementations
         public async Task<List<OrderDTO>> GetAllOrdersAsync()
         {
             var orders = await _repo.GetAllOrdersAsync();
-            if (orders == null) 
+            if (orders == null)
             {
                 return new List<OrderDTO>();
             }
             return _mapper.Map<List<OrderDTO>>(orders);
         }
 
-        public async Task<OrderDTO> GetOrderByIdAsync(Guid id)
+        public async Task<ServiceResult> GetOrderByIdAsync(Guid id, string userId)
         {
             var order = await _repo.GetOrderByIdAsync(id);
             if (order == null)
             {
-                throw new KeyNotFoundException("Order not found!");
+                return ServiceResult.Failure("Không tìm thấy Order!");
             }
-            return _mapper.Map<OrderDTO>(order);
+            if (order.UserId != userId)
+            {
+                return ServiceResult.Failure("Có lỗi trong quá trình xử lý thông tin, vui lòng đăng nhập lại!");
+            }
+            var orderDTO = _mapper.Map<OrderDTO>(order);
+            return ServiceResult.Success("Đã thấy được Order", orderDTO);
         }
 
         public async Task<List<OrderDTO>> GetOrdersByUserIdAsync(string userId)
         {
             var listOrders = await _repo.GetOrdersByUserIdAsync(userId);
-            if (listOrders == null) 
+            if (listOrders == null)
             {
                 return new List<OrderDTO>();
             }

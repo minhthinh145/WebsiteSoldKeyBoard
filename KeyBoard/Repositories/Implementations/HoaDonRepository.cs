@@ -13,7 +13,7 @@ namespace KeyBoard.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<HoaDon?> GetHoaDonByIdAsync(int maHd)
+        public async Task<Bill?> GetHoaDonByIdAsync(int maHd)
         {
             return await _context.HoaDons
                 .Include(hd => hd.ChiTietHoaDons)
@@ -21,7 +21,7 @@ namespace KeyBoard.Repositories.Implementations
                 .FirstOrDefaultAsync(hd => hd.MaHd == maHd);
         }
 
-        public async Task<IEnumerable<HoaDon>> GetHoaDonsByUserAsync(string userId)
+        public async Task<IEnumerable<Bill>> GetHoaDonsByUserAsync(string userId)
         {
                 return await _context.HoaDons
             .Where(hd => hd.UserId == userId)
@@ -70,7 +70,7 @@ namespace KeyBoard.Repositories.Implementations
                 .FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
-        public async Task<int> AddHoaDonAsync(HoaDon hoadon)
+        public async Task<int> AddHoaDonAsync(Bill hoadon)
         {
             _context.HoaDons.Add(hoadon);
             await _context.SaveChangesAsync();

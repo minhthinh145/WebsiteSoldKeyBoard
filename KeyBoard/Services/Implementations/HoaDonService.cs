@@ -24,7 +24,7 @@ namespace KeyBoard.Services.Implementations
             {
                 throw new Exception("Order not found");
             }
-            var hoadon = new HoaDon { 
+            var hoadon = new Bill { 
                 UserId = order.UserId,
                 NgayDat = DateTime.UtcNow,
                 MaTrangThai = 1,
@@ -32,7 +32,7 @@ namespace KeyBoard.Services.Implementations
                 CachThanhToan = "VNPay",
                 CachVanChuyen = "Giao hàng tiết kiệm",
                 PhiVanChuyen = 20000,
-                ChiTietHoaDons = order.OrderDetails.Select(od => new ChiTietHoaDon
+                ChiTietHoaDons = order.OrderDetails.Select(od => new BillDetails
                 {
                     TenHh = od.Product.Name,
                     MaHh = od.ProductId,
@@ -62,7 +62,7 @@ namespace KeyBoard.Services.Implementations
 
         public async Task<List<HoaDonDTO>> GetHoaDonsByUserIdAsync(string userId)
         {
-            var hoadons = await _repo.GetHoaDonsByUserAsync(userId) ?? new List<HoaDon>();
+            var hoadons = await _repo.GetHoaDonsByUserAsync(userId) ?? new List<Bill>();
 
             if (!hoadons.Any())
             {

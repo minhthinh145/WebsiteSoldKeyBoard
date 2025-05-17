@@ -13,33 +13,35 @@ namespace KeyBoard.Controllers
     {
         private readonly IOrdersService _service;
 
-        public OrdersController(IOrdersService service) 
+        public OrdersController(IOrdersService service)
         {
             _service = service;
         }
         //get all orders
         [HttpGet]
         [Authorize(Roles = ApplicationRole.Customer)]
-        public async Task<IActionResult> GetAllOrders() 
+        public async Task<IActionResult> GetAllOrders()
         {
             var orders = await _service.GetAllOrdersAsync();
             return Ok(orders);
         }
 
         //get oders by id
-        [HttpGet("{id}")]
+        [HttpGet("getOrder")]
         [Authorize(Roles = ApplicationRole.Customer)]
-        public async Task<IActionResult> GetOrderById(Guid id)
+        public async Task<IActionResult> GetOrderById([FromQuery] Guid id)
         {
-            try
+            var userId = GetUserIdByToken();
+            var result = await _service.GetOrderByIdAsync(id, userId);
+
+            if (!result.IsSuccess)
             {
-                var order = await _service.GetOrderByIdAsync(id);
-                return Ok(order);
+                return result.Message.Contains("not found")
+                    ? NotFound(new { result.Message })
+                    : StatusCode(403, new { result.Message });
             }
-            catch (KeyNotFoundException)
-            {
-                return NotFound(new { message = "Order not found!" });
-            }
+
+            return Ok(new { result.Data });
         }
 
         //get orders by user id
@@ -47,7 +49,7 @@ namespace KeyBoard.Controllers
         [Authorize(Roles = ApplicationRole.Customer)]
         public async Task<IActionResult> GetOrdersByUserId()
         {
-            var userId = User.FindFirst("UserId")?.Value; 
+            var userId = GetUserIdByToken();
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized(new { message = "User is not authenticated" });
@@ -63,20 +65,20 @@ namespace KeyBoard.Controllers
         }
 
         //create order
-        [HttpPost]
-        [Authorize(Roles = ApplicationRole.Customer)]
-        public async Task<IActionResult> CreateOrder([FromBody]OrderDTO orderDTO)
+        [HttpPost("order")]
+        [Authorize]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderDTO orderDTO)
         {
-            var userId = User.FindFirst("UserId")?.Value;
+            var userId = GetUserIdByToken();
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized(new { message = "User is not authenticated" });
             }
-            var order  = await _service.CreateOrderAsync(orderDTO, userId);
+            var order = await _service.CreateOrderAsync(orderDTO, userId);
             return Ok(order);
         }
         [HttpPut("{id}/status")]
-        [Authorize(Roles = ApplicationRole.Admin)] // Chỉ Admin có quyền cập nhật
+        [Authorize(Roles = ApplicationRole.Admin)] 
         public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] string newStatus)
         {
             if (string.IsNullOrEmpty(newStatus))
@@ -101,7 +103,7 @@ namespace KeyBoard.Controllers
         //create ORders from carts
         [HttpPost("createorder")]
         [Authorize]
-        public async Task<IActionResult> CreateOrderFromCart() 
+        public async Task<IActionResult> CreateOrderFromCart()
         {
             var userId = GetUserIdByToken();
             if (string.IsNullOrEmpty(userId))
@@ -109,14 +111,21 @@ namespace KeyBoard.Controllers
                 return Unauthorized(new { message = "User is not authenticated" });
             }
 
-           var order =  await _service.CreateOrderFromCartAsync(userId);
+            var order = await _service.CreateOrderFromCartAsync(userId);
             return Ok(order);
         }
 
         private string GetUserIdByToken()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

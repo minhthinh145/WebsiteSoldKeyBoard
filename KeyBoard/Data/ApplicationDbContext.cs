@@ -22,9 +22,9 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<Category> Categories { get; set; }
 
-    public virtual DbSet<ChiTietHoaDon> ChiTietHoaDons { get; set; }
+    public virtual DbSet<BillDetails> ChiTietHoaDons { get; set; }
 
-    public virtual DbSet<HoaDon> HoaDons { get; set; }
+    public virtual DbSet<Bill> HoaDons { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
@@ -83,7 +83,7 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Name).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<ChiTietHoaDon>(entity =>
+        modelBuilder.Entity<BillDetails>(entity =>
         {
             entity.HasKey(e => e.MaCt).HasName("PK__ChiTietH__27258E543E3B4AAD");
 
@@ -104,7 +104,7 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ChiTietHoa__MaHh__44CA3770");
         });
 
-        modelBuilder.Entity<HoaDon>(entity =>
+        modelBuilder.Entity<Bill>(entity =>
         {
             entity.HasKey(e => e.MaHd).HasName("PK__HoaDon__2725A6C0938A0714");
 

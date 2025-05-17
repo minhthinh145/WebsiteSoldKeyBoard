@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KeyBoard.Data;
 
-public partial class ChiTietHoaDon
+public partial class BillDetails
 {
     public int MaCt { get; set; }
 
@@ -19,7 +19,7 @@ public partial class ChiTietHoaDon
 
     public string TenHh { get; set; } = null!;
 
-    public virtual HoaDon MaHdNavigation { get; set; } = null!;
+    public virtual Bill MaHdNavigation { get; set; } = null!;
 
     public virtual Product MaHhNavigation { get; set; } = null!;
 }

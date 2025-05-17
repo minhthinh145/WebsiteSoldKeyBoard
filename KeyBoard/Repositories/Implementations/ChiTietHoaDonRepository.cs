@@ -21,12 +21,12 @@ namespace KeyBoard.Repositories.Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<ChiTietHoaDon> GetByChiTietHoaDonId(int chiTietId)
+        public async Task<BillDetails> GetByChiTietHoaDonId(int chiTietId)
         {
             return await _context.ChiTietHoaDons.FirstOrDefaultAsync(ct => ct.MaCt == chiTietId);
         }
 
-        public async Task<List<ChiTietHoaDon>> GetByHoaDonIdAsync(int hoaDonId)
+        public async Task<List<BillDetails>> GetByHoaDonIdAsync(int hoaDonId)
         {
             return await _context.ChiTietHoaDons
                 .Where(ct => ct.MaHd == hoaDonId)

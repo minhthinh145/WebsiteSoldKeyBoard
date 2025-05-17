@@ -15,7 +15,7 @@ namespace KeyBoard.Services.ExternalServices.Implementation
         public async Task SendOtpEmailAsync(string toEmail, string otpCode)
         {
             var message = new MimeKit.MimeMessage();
-            message.From.Add(new MimeKit.MailboxAddress("Hệ thống bán bàn phím", _configuration["EmailSettings:From"]));
+            message.From.Add(new MimeKit.MailboxAddress("Website bán bàn phím TShop", _configuration["EmailSettings:From"]));
             message.To.Add(MailboxAddress.Parse(toEmail));
             message.Subject = "Xác thực OTP - Website bán bàn phím";
             message.Body = new TextPart("plain")

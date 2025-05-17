@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KeyBoard.Data;
 
-public partial class HoaDon
+public partial class Bill
 {
     public int MaHd { get; set; }
 
@@ -31,7 +31,7 @@ public partial class HoaDon
 
     public string? GhiChu { get; set; }
 
-    public virtual ICollection<ChiTietHoaDon> ChiTietHoaDons { get; set; } = new List<ChiTietHoaDon>();
+    public virtual ICollection<BillDetails> ChiTietHoaDons { get; set; } = new List<BillDetails>();
 
     public virtual TrangThai MaTrangThaiNavigation { get; set; } = null!;
 

@@ -5,10 +5,10 @@ namespace KeyBoard.Repositories.Interfaces
     public interface IHoaDonRepository
     {
         // Lấy hóa đơn theo ID
-        Task<HoaDon?> GetHoaDonByIdAsync(int maHd);
+        Task<Bill?> GetHoaDonByIdAsync(int maHd);
 
         // Lấy danh sách hóa đơn của một User
-        Task<IEnumerable<HoaDon>> GetHoaDonsByUserAsync(string userId);
+        Task<IEnumerable<Bill>> GetHoaDonsByUserAsync(string userId);
 
         // Cập nhật trạng thái thanh toán
         Task<bool> UpdatePaymentStatusAsync(int maHd, int trangThai, DateTime ngayGiao);
@@ -20,6 +20,6 @@ namespace KeyBoard.Repositories.Interfaces
         Task<Order?> GetOrderWithDetailsAsync(Guid orderId);
 
         // Thêm hóa đơn vào database
-        Task<int> AddHoaDonAsync(HoaDon hoadon);
+        Task<int> AddHoaDonAsync(Bill hoadon);
     }
 }

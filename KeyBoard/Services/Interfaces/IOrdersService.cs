@@ -1,4 +1,5 @@
 ﻿using KeyBoard.DTOs;
+using KeyBoard.Helpers;
 
 namespace KeyBoard.Services.Interfaces
 {
@@ -15,7 +16,7 @@ namespace KeyBoard.Services.Interfaces
         /// </summary>
         /// <param name="id">ID của đơn hàng</param>
         /// <returns>OrderDTO nếu tìm thấy, ngược lại trả về null</returns>
-        Task<OrderDTO> GetOrderByIdAsync(Guid id);
+        Task<ServiceResult> GetOrderByIdAsync(Guid id , string userId);
 
         /// <summary>
         /// Lấy danh sách đơn hàng theo ID người dùng.
